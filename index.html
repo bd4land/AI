@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -26,17 +27,6 @@
         
         .chat-container { height: calc(100vh - 160px); }
         
-        /* DeepSeek Reasoning Box */
-        .reasoning-box {
-            background: #f1f5f9;
-            border-left: 3px solid #94a3b8;
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: #475569;
-        }
-
         /* Sidebar Glassmorphism */
         .sidebar {
             transition: all 0.3s ease;
@@ -49,31 +39,29 @@
         }
 
         /* Message Bubbles */
-        .ai-msg { border-radius: 2px 16px 16px 16px; border: 1px solid #e5e7eb; }
+        .ai-msg { border-radius: 2px 16px 16px 16px; border: 1px solid #e5e7eb; background: white; }
         .user-msg { border-radius: 16px 16px 2px 16px; background: var(--accent); color: white; }
 
-        /* Smooth Streaming Animation */
+        /* Cursor Animation */
         .cursor { display: inline-block; width: 3px; height: 15px; background: #2563eb; margin-left: 2px; animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
-        /* Code Block Header */
+        /* Code Block Design */
         .code-header { background: #1e293b; color: #cbd5e1; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        pre { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+        pre[class*="language-"] { margin-top: 0 !important; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
     </style>
 </head>
 <body class="flex text-gray-900">
 
-    <!-- Sidebar (ChatGPT Style) -->
-    <aside id="sidebar" class="sidebar bg-gray-100 border-r flex flex-col h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-gray-100 border-r flex flex-col h-screen shadow-inner">
         <div class="p-4">
-            <button onclick="resetChat()" class="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-sm font-semibold text-gray-600 hover:bg-white hover:border-blue-400 transition">
+            <button onclick="resetChat()" class="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-sm font-semibold text-gray-600 hover:bg-white hover:border-blue-400 transition shadow-sm">
                 <i class="fas fa-plus mr-2"></i> New Chat
             </button>
         </div>
-        <div id="history-list" class="flex-1 overflow-y-auto px-4 space-y-2">
-            <!-- History items go here -->
-        </div>
-        <div class="p-4 border-t text-xs text-gray-500 font-bold uppercase tracking-widest text-center">
+        <div id="history-list" class="flex-1 overflow-y-auto px-4 space-y-2"></div>
+        <div class="p-4 border-t text-xs text-gray-400 font-bold uppercase tracking-widest text-center">
             BD4land Master V3
         </div>
     </aside>
@@ -88,19 +76,18 @@
                     <i class="fas fa-brain"></i> BD4land Master AI
                 </span>
             </div>
-            <div class="flex gap-4 text-gray-500 text-sm">
-                <span title="Reasoning Mode On"><i class="fas fa-microchip"></i> DeepThink</span>
-                <span title="Search Mode On"><i class="fas fa-globe"></i> Web Search</span>
+            <div class="flex gap-4 text-gray-400 text-sm font-medium">
+                <span class="flex items-center gap-1"><i class="fas fa-microchip text-xs"></i> DeepThink</span>
+                <span class="flex items-center gap-1"><i class="fas fa-globe text-xs"></i> Web Search</span>
             </div>
         </header>
 
         <!-- Chat Area -->
         <div id="chat-box" class="chat-container overflow-y-auto p-4 md:px-20 space-y-6">
-            <!-- Initial Message -->
             <div class="flex gap-4">
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white"><i class="fas fa-robot text-xs"></i></div>
-                <div class="ai-msg p-4 bg-white shadow-sm max-w-3xl">
-                    আসসালামু আলাইকুম! আমি **BD4land Master**। আমি DeepSeek-এর মতো যুক্তি এবং ChatGPT-এর মতো সৃজনশীলতার হাইব্রিড ভার্সন। আজ কী সাহায্য করতে পারি?
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0"><i class="fas fa-robot text-xs"></i></div>
+                <div class="ai-msg p-4 shadow-sm max-w-3xl">
+                    আসসালামু আলাইকুম! আমি **BD4land Master**। আমি DeepSeek এবং ChatGPT-এর হাইব্রিড ভার্সন। আজ কী সাহায্য করতে পারি?
                 </div>
             </div>
         </div>
@@ -110,35 +97,46 @@
             <div id="status-chips" class="flex gap-2 mb-2"></div>
             
             <div class="max-w-4xl mx-auto relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20 group-focus-within:opacity-50 transition duration-300"></div>
-                <div class="relative flex items-end gap-2 bg-white rounded-2xl p-2 border border-gray-200 shadow-lg">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-300"></div>
+                <div class="relative flex items-end gap-2 bg-white rounded-2xl p-2 border border-gray-200 shadow-xl">
                     <textarea id="input" rows="1" placeholder="প্রোগ্রামিং সলভ বা ছবি আঁকতে বলুন..." 
                         class="w-full bg-transparent px-4 py-3 focus:outline-none resize-none max-h-48 text-gray-700"></textarea>
                     
                     <button onclick="send()" id="send-btn" 
-                        class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-all disabled:opacity-50">
+                        class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-all disabled:opacity-50 shadow-md">
                         <i class="fas fa-arrow-up"></i>
                     </button>
                 </div>
             </div>
-            <p class="text-[10px] text-center mt-3 text-gray-400">DeepSeek R1 + GPT-4o Architecture Hybrid</p>
+            <p class="text-[10px] text-center mt-3 text-gray-400 font-medium tracking-tight">DeepSeek R1 + GPT-4o Hybrid Architecture</p>
         </div>
     </main>
 
-  <script>
+<script>
     let chatHistory = [];
     const box = document.getElementById('chat-box');
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('send-btn');
     const statusChips = document.getElementById('status-chips');
 
-    // Marked.js Configuration
+    // Marked.js Configuration (Fixed [object Object] issue)
     const renderer = new marked.Renderer();
-    renderer.code = (code, lang) => {
+    renderer.code = function(token) {
+        const code = token.text || "";
+        const lang = token.lang || "text";
         const id = 'code-' + Math.random().toString(36).substr(2, 5);
-        return `<div class="my-4"><div class="code-header px-4 py-2 text-xs flex justify-between"><span>${lang || 'code'}</span><button onclick="copyCode('${id}')"><i class="far fa-copy"></i> Copy</button></div><pre id="${id}" class="language-${lang}"><code>${code}</code></pre></div>`;
+        
+        return `<div class="my-4 overflow-hidden rounded-lg shadow-lg border border-gray-700">
+                    <div class="code-header px-4 py-2 text-xs flex justify-between items-center font-mono">
+                        <span class="uppercase"><i class="fas fa-code mr-1"></i> ${lang}</span>
+                        <button onclick="copyCode('${id}')" class="hover:text-blue-400 transition flex items-center gap-1">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre id="${id}" class="language-${lang}"><code class="language-${lang}">${escapeHtml(code)}</code></pre>
+                </div>`;
     };
-    marked.setOptions({ renderer, breaks: true });
+    marked.setOptions({ renderer: renderer, breaks: true });
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
 
@@ -147,8 +145,7 @@
         chip.className = "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 animate-pulse mb-2";
         chip.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
         statusChips.appendChild(chip);
-        // ৫ সেকেন্ড পর অটো রিমুভ (অপশনাল)
-        setTimeout(() => chip.remove(), 5000);
+        setTimeout(() => chip.remove(), 6000);
         return chip;
     }
 
@@ -156,7 +153,6 @@
         const prompt = input.value.trim();
         if(!prompt) return;
 
-        // UI Update
         appendMessage(prompt, 'user');
         input.value = '';
         input.style.height = 'auto';
@@ -174,22 +170,19 @@
                 body: JSON.stringify({ prompt, history: chatHistory })
             });
 
-            if (!response.ok) throw new Error("Network response was not ok");
+            if (!response.ok) throw new Error("সার্ভার রেসপন্স করছে না");
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let buffer = ""; // ভাঙা ডাটা জোড়া লাগানোর জন্য বাফার
+            let buffer = ""; 
 
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
                 
-                // বাফারে নতুন ডাটা যোগ করা
                 buffer += decoder.decode(value, { stream: true });
-                
-                // লাইন বাই লাইন প্রসেস করা
                 let lines = buffer.split('\n');
-                buffer = lines.pop(); // শেষ অসম্পূর্ণ লাইনটি বাফারে রেখে দেওয়া
+                buffer = lines.pop(); 
 
                 for (const line of lines) {
                     const trimmedLine = line.trim();
@@ -204,34 +197,26 @@
                         } else if (data.type === 'text') {
                             fullText += data.content;
                             contentArea.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
-                            // কোড হাইলাইটিং শুধুমাত্র প্রতি ৫ টোকেন পর পর দিলে পারফরম্যান্স ভালো থাকে
-                            if (fullText.length % 5 === 0) Prism.highlightAllUnder(aiWrapper);
+                            if (fullText.length % 15 === 0) Prism.highlightAllUnder(aiWrapper);
                         } else if (data.type === 'image') {
                             renderImage(aiWrapper, data.content);
                         } else if (data.type === 'error') {
                             throw new Error(data.content);
                         }
-                    } catch (e) {
-                        console.warn("JSON Parse Error on line:", trimmedLine);
-                    }
+                    } catch (e) { console.warn("Parse Error"); }
                 }
                 box.scrollTop = box.scrollHeight;
             }
             
-            // শেষবার ফাইনাল হাইলাইট
             contentArea.querySelector('.cursor')?.remove();
             Prism.highlightAllUnder(aiWrapper);
-            
-            // চ্যাট হিস্ট্রি আপডেট
             chatHistory.push({role: 'user', content: prompt}, {role: 'assistant', content: fullText});
             updateHistoryUI(prompt);
 
         } catch(e) {
-            console.error("চ্যাট এরর:", e);
-            contentArea.innerHTML = `<p class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle"></i> দুঃখিত: ${e.message}</p>`;
+            contentArea.innerHTML = `<p class="text-red-500 font-bold"><i class="fas fa-exclamation-circle"></i> দুঃখিত: ${e.message}</p>`;
         } finally {
             sendBtn.disabled = false;
-            // statusChips.innerHTML = ''; // চাইলে রেখে দিতে পারেন
         }
     }
 
@@ -239,8 +224,8 @@
         const div = document.createElement('div');
         div.className = `flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
         div.innerHTML = `
-            ${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 shadow-lg"><i class="fas fa-robot text-xs"></i></div>' : ''}
-            <div class="${role === 'user' ? 'user-msg shadow-md' : 'ai-msg shadow-sm'} p-4 max-w-[85%] md:max-w-3xl overflow-hidden bg-white">
+            ${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 shadow-md"><i class="fas fa-robot text-xs"></i></div>' : ''}
+            <div class="${role === 'user' ? 'user-msg shadow-md' : 'ai-msg shadow-sm'} p-4 max-w-[85%] md:max-w-3xl overflow-hidden">
                 <div class="content-area prose prose-sm max-w-none">
                     ${role === 'user' ? escapeHtml(content) : (content ? marked.parse(content) : '<span class="animate-pulse">Thinking...</span>')}
                 </div>
@@ -252,17 +237,16 @@
     }
 
     function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return text.replace(/[&<>"']/g, m => map[m]);
     }
 
     function renderImage(container, url) {
         container.querySelector('.content-area').innerHTML = `
-            <div class="mt-2 group relative border rounded-xl overflow-hidden shadow-lg">
+            <div class="mt-2 group relative border rounded-xl overflow-hidden shadow-lg border-blue-200">
                 <img src="${url}" class="w-full h-auto object-cover max-w-md">
-                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                    <a href="${url}" target="_blank" class="bg-white text-black p-2 rounded-lg text-xs font-bold shadow-xl"><i class="fas fa-expand"></i> Full View</a>
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                    <a href="${url}" target="_blank" class="bg-white text-black px-4 py-2 rounded-lg text-xs font-bold shadow-xl flex items-center gap-1"><i class="fas fa-expand"></i> Full View</a>
                 </div>
             </div>`;
     }
@@ -278,7 +262,9 @@
     function copyCode(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert("কোড কপি করা হয়েছে!");
+            const btn = document.querySelector(`[onclick="copyCode('${id}')"]`);
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
         });
     }
 
@@ -290,13 +276,11 @@
         }
     }
 
-    // Textarea auto-resize
     input.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
     });
 
-    // Enter to Send
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

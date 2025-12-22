@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD4land Master AI | ChatGPT Style</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&display=swap');
+        
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f9f9f9; }
+        .chat-container { height: calc(100vh - 160px); scroll-behavior: smooth; }
+        
+        /* ChatGPT Style Code Blocks */
+        .code-header { background: #2d2d2d; color: #e2e8f0; padding: 8px 16px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; font-family: monospace; }
+        pre[class*="language-"] { margin-top: 0 !important; border-radius: 0 0 8px 8px !important; }
+        
+        /* AI & User Bubbles */
+        .ai-msg { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px 15px 15px 2px; }
+        .user-msg { background: #2563eb; color: white; border-radius: 15px 15px 2px 15px; }
+        
+        /* Markdown Tables */
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; background: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f3f4f6; }
+
+        /* SVG Rendering */
+        svg { max-width: 100%; height: auto; display: block; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; background: white; }
+
+        .thinking { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-4xl mx-auto flex flex-col h-screen shadow-2xl bg-white">
+        <!-- Header -->
+        <header class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1 class="text-lg font-bold text-gray-800">BD4land AI <span class="text-xs text-blue-500 font-normal">v2.1 Master</span></h1>
+            </div>
+            <button onclick="window.location.reload()" class="text-sm text-gray-500 hover:text-red-500 flex items-center gap-1 transition">
+                <i class="fas fa-rotate-right"></i> রিসেট চ্যাট
+            </button>
+        </header>
+
+        <!-- Chat Box -->
+        <div id="chat-box" class="chat-container overflow-y-auto p-4 md:p-6 space-y-6">
+            <!-- Initial Message -->
+            <div class="ai-msg p-4 max-w-[90%] shadow-sm">
+                আসসালামু আলাইকুম! আমি <b>BD4land Master AI</b>। আপনাকে কিভাবে সাহায্য করতে পারি?
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="p-4 bg-white border-t">
+            <div id="status" class="text-xs text-blue-500 mb-2 hidden font-bold thinking">
+                <i class="fas fa-magnifying-glass animate-bounce"></i> এআই চিন্তা করছে ও সার্চ করছে...
+            </div>
+            <div class="flex items-end gap-2 bg-gray-100 rounded-2xl p-2 shadow-inner border border-gray-200">
+                <textarea id="input" rows="1" placeholder="যেকোনো কিছু জিজ্ঞাসা করুন..." class="w-full bg-transparent px-3 py-2 focus:outline-none resize-none max-h-32"></textarea>
+                <button onclick="send()" id="send-btn" class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-blue-700 transition disabled:opacity-50">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-400 text-center mt-2">BD4land AI ভুল তথ্য দিতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করে নিন।</p>
+        </div>
+    </div>
+
+    <script>
+        let history = [];
+        const box = document.getElementById('chat-box');
+        const input = document.getElementById('input');
+        const status = document.getElementById('status');
+        const sendBtn = document.getElementById('send-btn');
+
+        // marked.js Renderer Customization for ChatGPT Style Code
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language) {
+            const lang = language || 'text';
+            const id = 'code-' + Math.random().toString(36).substr(2, 9);
+            return `
+                <div class="my-4">
+                    <div class="code-header">
+                        <span>${lang.toUpperCase()}</span>
+                        <button onclick="copyCode('${id}')" class="hover:text-white transition flex items-center gap-1">
+                            <i class="far fa-copy"></i> Copy code
+                        </button>
+                    </div>
+                    <pre id="${id}" class="language-${lang}"><code>${escapeHtml(code)}</code></pre>
+                </div>
+            `;
+        };
+        marked.setOptions({ renderer: renderer });
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function copyCode(id) {
+            const code = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector(`[onclick="copyCode('${id}')"]`);
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy code', 2000);
+            });
+        }
+
+        async function send() {
+            const val = input.value.trim();
+            if(!val) return;
+            
+            appendMessage(val, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            status.classList.remove('hidden');
+            sendBtn.disabled = true;
+
+            try {
+                const res = await fetch('https://ai.bd4search.workers.dev', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ prompt: val, history: history })
+                });
+                const data = await res.json();
+                status.classList.add('hidden');
+                sendBtn.disabled = false;
+
+                if(data.type === 'image') {
+                    appendImage(data.content, data.message);
+                } else {
+                    appendMessage(data.content, 'ai');
+                    history.push({role: 'user', content: val});
+                    history.push({role: 'assistant', content: data.content});
+                }
+            } catch(e) {
+                status.innerHTML = "<span class='text-red-500'>Error: সার্ভারে সমস্যা হয়েছে!</span>";
+                sendBtn.disabled = false;
+            }
+        }
+
+        function appendMessage(content, role) {
+            const div = document.createElement('div');
+            if(role === 'user') {
+                div.className = 'ml-auto max-w-[85%] user-msg p-4 shadow-sm text-sm md:text-base';
+                div.innerText = content;
+            } else {
+                div.className = 'mr-auto w-full md:max-w-[95%] ai-msg p-4 shadow-sm text-sm md:text-base prose max-w-none';
+                div.innerHTML = marked.parse(content);
+                Prism.highlightAllUnder(div);
+            }
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+            return div;
+        }
+
+        function appendImage(url, msg) {
+            const div = document.createElement('div');
+            div.className = 'mr-auto max-w-[90%] ai-msg p-4 shadow-sm';
+            div.innerHTML = `
+                <p class="mb-3 text-sm font-semibold text-gray-700"><i class="fas fa-image"></i> ${msg}</p>
+                <div class="relative group">
+                    <img src="${url}" class="rounded-xl shadow-lg w-full mb-3 border border-gray-100" alt="AI Generated">
+                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                        <a href="${url}" target="_blank" class="bg-white/80 backdrop-blur px-3 py-1 rounded text-xs text-blue-600 font-bold">Open Full HD</a>
+                    </div>
+                </div>
+                <a href="${url}" target="_blank" class="inline-flex items-center gap-2 bg-blue-600 text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-download"></i> ডাউনলোড ইমেজ
+                </a>
+            `;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Auto-expand textarea
+        input.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        input.addEventListener('keypress', (e) => { 
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+            }
+        });
+    </script>
+</body>
+</html>

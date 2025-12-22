@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BD4land Master AI | Professional Hybrid</title>
+    <title>BD4land Master AI | 2025 Persistent</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -14,21 +14,16 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&display=swap');
-        
         :root { --bd-green: #006a4e; --bd-red: #f42a41; }
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f9fafb; overflow: hidden; }
-        
-        .chat-container { height: calc(100vh - 160px); scroll-behavior: smooth; }
-        .sidebar { transition: all 0.3s ease; width: 280px; z-index: 50; background: #f3f4f6; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        .chat-container { height: calc(100vh - 170px); scroll-behavior: smooth; }
+        .sidebar { transition: all 0.3s ease; width: 280px; z-index: 50; background: #ffffff; }
         @media (max-width: 768px) { .sidebar { position: absolute; left: -280px; height: 100%; } .sidebar.active { left: 0; } }
-
-        .ai-msg { border-radius: 2px 18px 18px 18px; border: 1px solid #e5e7eb; background: white; }
+        .ai-msg { border-radius: 2px 18px 18px 18px; border: 1px solid #e2e8f0; background: white; }
         .user-msg { border-radius: 18px 18px 2px 18px; background: var(--bd-green); color: white; }
-        
-        .conv-item.active { background: white; border-color: var(--bd-green); color: var(--bd-green); }
+        .conv-item.active { background: #f0fdf4; border-left: 4px solid var(--bd-green); color: var(--bd-green); }
         .cursor { display: inline-block; width: 3px; height: 15px; background: var(--bd-green); margin-left: 2px; animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-        
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
@@ -37,31 +32,31 @@
 
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar border-r flex flex-col h-screen shadow-lg">
-        <div class="p-4 border-b bg-white">
-            <button onclick="createNewChat()" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl py-2.5 text-sm font-bold text-gray-600 hover:border-green-600 hover:text-green-600 transition flex items-center justify-center gap-2">
-                <i class="fas fa-plus"></i> নতুন চ্যাট শুরু করুন
+        <div class="p-4 bg-gray-50 border-b">
+            <button onclick="createNewChat()" class="w-full bg-white border border-gray-300 rounded-xl py-2.5 text-sm font-bold text-gray-700 hover:bg-green-50 hover:border-green-600 transition flex items-center justify-center gap-2">
+                <i class="fas fa-plus text-green-600"></i> নতুন চ্যাট শুরু করুন
             </button>
         </div>
-        <div id="conv-list" class="flex-1 overflow-y-auto p-3 space-y-2">
-            <!-- Conversations will load here -->
+        <div id="conv-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+            <!-- Conversations load here -->
         </div>
-        <div class="p-4 border-t bg-white">
-            <div class="flex items-center gap-3 p-2 bg-green-50 rounded-xl border border-green-100">
-                <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-[10px]"><i class="fas fa-flag"></i></div>
-                <div class="text-[11px] font-bold text-green-800 uppercase">BD4land Master<br><span class="text-[9px] text-gray-400">Persistent V3.5</span></div>
-            </div>
+        <div class="p-4 border-t bg-gray-50 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-[10px] shadow-md"><i class="fas fa-flag"></i></div>
+            <div class="text-[11px] font-bold text-green-800 uppercase tracking-tighter">BD4land Master<br><span class="text-gray-400">Secure Hybrid V3.5</span></div>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen relative">
-        <header class="h-14 border-b bg-white/95 flex items-center justify-between px-6 shadow-sm">
+        <header class="h-14 border-b bg-white/90 backdrop-blur flex items-center justify-between px-6 shadow-sm">
             <div class="flex items-center gap-4">
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="fas fa-bars text-xl"></i></button>
-                <h2 id="current-chat-title" class="font-bold text-gray-700 truncate max-w-[200px] md:max-w-md">নতুন কথোপকথন</h2>
+                <h2 id="current-chat-title" class="font-bold text-gray-700 truncate max-w-[180px] md:max-w-md">নতুন কথোপকথন</h2>
             </div>
             <div class="flex gap-2">
-                <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">2025 ONLINE</span>
+                <div class="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">
+                    <i class="fas fa-circle text-[6px]"></i> 2025 ACTIVE
+                </div>
             </div>
         </header>
 
@@ -75,17 +70,19 @@
             <div id="status-chips" class="flex gap-2 mb-2"></div>
             
             <div id="image-preview-container" class="hidden mb-3 p-2 bg-gray-50 rounded-xl border border-dashed border-gray-300 relative inline-block">
-                <img id="image-preview" src="" class="h-20 rounded shadow-md">
-                <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]"><i class="fas fa-times"></i></button>
+                <img id="image-preview" src="" class="h-20 rounded shadow-md border-2 border-white">
+                <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-lg hover:bg-red-600 transition">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
-            <div class="relative flex items-end gap-2 bg-gray-100 rounded-2xl p-2 border border-gray-200 focus-within:bg-white focus-within:border-green-500 transition-all shadow-md">
-                <label class="p-3 text-gray-400 hover:text-green-600 cursor-pointer">
-                    <i class="fas fa-image text-xl"></i>
+            <div class="relative flex items-end gap-2 bg-gray-50 rounded-2xl p-2 border border-gray-200 focus-within:bg-white focus-within:border-green-600 focus-within:shadow-xl transition-all">
+                <label class="p-3 text-gray-400 hover:text-green-600 cursor-pointer transition">
+                    <i class="fas fa-paperclip text-xl"></i>
                     <input type="file" id="image-input" class="hidden" accept="image/*" onchange="processImage(event)">
                 </label>
-                <textarea id="input" rows="1" placeholder="যেকোনো কিছু জিজ্ঞাসা করুন..." class="w-full bg-transparent px-2 py-3 focus:outline-none resize-none max-h-40 text-gray-700"></textarea>
-                <button onclick="send()" id="send-btn" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 disabled:opacity-50 transition shadow-lg">
+                <textarea id="input" rows="1" placeholder="যেকোনো কিছু জিজ্ঞাসা করুন..." class="w-full bg-transparent px-2 py-3 focus:outline-none resize-none max-h-40 text-gray-700 font-medium"></textarea>
+                <button onclick="send()" id="send-btn" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 disabled:opacity-50 shadow-lg">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
@@ -93,91 +90,97 @@
     </main>
 
 <script>
-    // --- IndexedDB Complex Logic ---
-    const DB_NAME = "BD4land_Pro_DB";
-    const DB_VERSION = 1;
+    // --- Global Variables (Properly Defined) ---
     let db;
     let currentChatId = localStorage.getItem('currentChatId') || null;
     let chatHistory = [];
     let selectedImageBase64 = null;
+    
+    const box = document.getElementById('chat-box');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+    const statusChips = document.getElementById('status-chips');
 
-    const dbRequest = indexedDB.open(DB_NAME, DB_VERSION);
+    // --- IndexedDB Configuration ---
+    const DB_NAME = "BD4land_V3_Persistent";
+    const dbRequest = indexedDB.open(DB_NAME, 1);
+
     dbRequest.onupgradeneeded = (e) => {
         const d = e.target.result;
         d.createObjectStore("conversations", { keyPath: "id" });
-        d.createObjectStore("messages", { keyPath: "msgId", autoIncrement: true }).createIndex("chatId", "chatId", { unique: false });
+        d.createObjectStore("messages", { keyPath: "msgId", autoIncrement: true })
+         .createIndex("chatId", "chatId", { unique: false });
     };
+
     dbRequest.onsuccess = (e) => {
         db = e.target.result;
         initApp();
     };
 
-    function initApp() {
+    async function initApp() {
         renderConversationList();
         if (currentChatId) {
-            loadChat(currentChatId);
+            await switchChat(currentChatId);
         } else {
-            createNewChat();
+            await createNewChat();
         }
     }
 
-    // --- Conversation Management ---
+    // --- Conversation Logic ---
     async function createNewChat() {
         const id = "chat_" + Date.now();
         const newChat = { id, title: "নতুন কথোপকথন", time: Date.now() };
         const tx = db.transaction("conversations", "readwrite");
         await tx.objectStore("conversations").add(newChat);
-        switchChat(id);
+        await switchChat(id);
     }
 
     async function switchChat(id) {
         currentChatId = id;
         localStorage.setItem('currentChatId', id);
-        document.getElementById('chat-box').innerHTML = "";
+        box.innerHTML = "";
         chatHistory = [];
-        loadChat(id);
-        renderConversationList();
-    }
-
-    async function loadChat(id) {
+        document.getElementById('sidebar').classList.remove('active');
+        
+        // Load Conversation Title
         const tx = db.transaction(["conversations", "messages"], "readonly");
-        const conv = await tx.objectStore("conversations").get(id);
-        conv.onsuccess = (e) => {
+        const convReq = tx.objectStore("conversations").get(id);
+        convReq.onsuccess = (e) => {
             if (e.target.result) document.getElementById('current-chat-title').innerText = e.target.result.title;
         };
 
+        // Load Messages
         const msgIndex = tx.objectStore("messages").index("chatId");
-        const request = msgIndex.getAll(id);
-        request.onsuccess = () => {
-            const msgs = request.result;
+        const msgReq = msgIndex.getAll(id);
+        msgReq.onsuccess = () => {
+            const msgs = msgReq.result;
             msgs.forEach(m => {
                 const div = appendMessage(m.content, m.role, m.image);
                 if (m.role === 'ai') div.querySelector('.content-area').innerHTML = marked.parse(m.content);
             });
-            chatHistory = msgs.slice(-8).map(m => ({ role: m.role, content: m.content }));
+            chatHistory = msgs.slice(-10).map(m => ({ role: m.role, content: m.content }));
             Prism.highlightAll();
             box.scrollTop = box.scrollHeight;
         };
+        renderConversationList();
     }
 
     async function renderConversationList() {
         const list = document.getElementById('conv-list');
         list.innerHTML = "";
         const tx = db.transaction("conversations", "readonly");
-        const store = tx.objectStore("conversations");
-        const request = store.getAll();
-        request.onsuccess = () => {
-            const convs = request.result.sort((a, b) => b.time - a.time);
+        tx.objectStore("conversations").getAll().onsuccess = (e) => {
+            const convs = e.target.result.sort((a, b) => b.time - a.time);
             convs.forEach(c => {
                 const div = document.createElement('div');
-                div.className = `conv-item flex items-center justify-between p-3 text-sm rounded-xl cursor-pointer border border-transparent hover:bg-white group transition ${c.id === currentChatId ? 'active shadow-sm border-green-200' : 'text-gray-500'}`;
+                div.className = `group flex items-center justify-between p-3 text-sm rounded-xl cursor-pointer border border-transparent hover:bg-white transition ${c.id === currentChatId ? 'active shadow-sm' : 'text-gray-500 hover:text-gray-700'}`;
                 div.onclick = () => switchChat(c.id);
                 div.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <i class="far fa-comment-alt"></i>
-                        <span class="truncate">${c.title}</span>
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="far fa-message text-[12px]"></i>
+                        <span class="truncate font-medium">${c.title}</span>
                     </div>
-                    <button onclick="event.stopPropagation(); deleteChat('${c.id}')" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 p-1"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="event.stopPropagation(); deleteChat('${c.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
                 `;
                 list.appendChild(div);
             });
@@ -185,10 +188,9 @@
     }
 
     async function deleteChat(id) {
-        if (!confirm("এই চ্যাটটি কি ডিলিট করতে চান?")) return;
+        if (!confirm("এই চ্যাটটি কি মুছে ফেলতে চান?")) return;
         const tx = db.transaction(["conversations", "messages"], "readwrite");
-        await tx.objectStore("conversations").delete(id);
-        // Delete messages linked to this chatId (complex logic for simple IDB, here we just clear the list)
+        tx.objectStore("conversations").delete(id);
         if (currentChatId === id) {
             localStorage.removeItem('currentChatId');
             currentChatId = null;
@@ -198,7 +200,7 @@
         }
     }
 
-    // --- Message Handling ---
+    // --- Core Chat Functions ---
     async function send() {
         const prompt = input.value.trim();
         if (!prompt && !selectedImageBase64) return;
@@ -206,20 +208,18 @@
         const imgToSend = selectedImageBase64;
         appendMessage(prompt, 'user', imgToSend);
         
-        // Save User Message
+        // Save User Message & Update Title
         const tx = db.transaction(["messages", "conversations"], "readwrite");
         tx.objectStore("messages").add({ chatId: currentChatId, role: 'user', content: prompt, image: imgToSend });
         
-        // Update Title if it's the first message
         if (chatHistory.length === 0 && prompt) {
             const convStore = tx.objectStore("conversations");
-            const req = convStore.get(currentChatId);
-            req.onsuccess = () => {
-                const data = req.result;
-                data.title = prompt.substring(0, 30) + "...";
-                convStore.put(data);
+            convStore.get(currentChatId).onsuccess = (e) => {
+                const conv = e.target.result;
+                conv.title = prompt.substring(0, 25) + "...";
+                convStore.put(conv);
                 renderConversationList();
-            }
+            };
         }
 
         input.value = '';
@@ -237,6 +237,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, history: chatHistory, image: imgToSend })
             });
+
+            if (!response.ok) throw new Error("Connection failed");
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -258,6 +260,8 @@
                                 contentArea.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
                             } else if (data.type === 'status') {
                                 showStatus(data.content);
+                            } else if (data.type === 'image') {
+                                contentArea.innerHTML = `<img src="${data.content}" class="rounded-xl shadow-lg border-2 border-white mt-2">`;
                             }
                         } catch (e) { }
                     }
@@ -268,19 +272,36 @@
             contentArea.querySelector('.cursor')?.remove();
             Prism.highlightAllUnder(aiWrapper);
             
-            // Save AI Message
+            // Save AI Response
             const tx2 = db.transaction("messages", "readwrite");
             tx2.objectStore("messages").add({ chatId: currentChatId, role: 'ai', content: fullText });
             chatHistory.push({ role: 'user', content: prompt }, { role: 'ai', content: fullText });
 
         } catch (e) {
-            contentArea.innerHTML = "কানেকশন এরর। আবার চেষ্টা করুন।";
+            contentArea.innerHTML = `<span class="text-red-500 font-bold">সার্ভারে সমস্যা হয়েছে। আবার চেষ্টা করুন।</span>`;
         } finally {
             sendBtn.disabled = false;
         }
     }
 
     // --- Helpers ---
+    function appendMessage(content, role, imageData = null) {
+        const div = document.createElement('div');
+        div.className = `flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
+        let imgTag = imageData ? `<img src="data:image/jpeg;base64,${imageData}" class="max-h-60 rounded-xl mb-2 shadow-md border-2 border-white">` : '';
+        div.innerHTML = `
+            ${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white flex-shrink-0 font-bold shadow-md">B</div>' : ''}
+            <div class="${role === 'user' ? 'user-msg' : 'ai-msg'} p-4 max-w-[85%] md:max-w-2xl overflow-hidden shadow-sm">
+                ${imgTag}
+                <div class="content-area prose prose-sm max-w-none">
+                    ${role === 'user' ? escapeHtml(content) : (content ? marked.parse(content) : '<span class="animate-pulse">প্রসেস হচ্ছে...</span>')}
+                </div>
+            </div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+        return div;
+    }
+
     function processImage(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -308,23 +329,6 @@
         document.getElementById('image-preview-container').classList.add('hidden');
     }
 
-    function appendMessage(content, role, imageData = null) {
-        const div = document.createElement('div');
-        div.className = `flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
-        let imgTag = imageData ? `<img src="data:image/jpeg;base64,${imageData}" class="max-h-60 rounded-xl mb-2 shadow-md border-2 border-white">` : '';
-        div.innerHTML = `
-            ${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white flex-shrink-0 font-bold shadow-md">B</div>' : ''}
-            <div class="${role === 'user' ? 'user-msg' : 'ai-msg'} p-4 max-w-[85%] md:max-w-2xl overflow-hidden shadow-sm">
-                ${imgTag}
-                <div class="content-area prose prose-sm max-w-none">
-                    ${role === 'user' ? escapeHtml(content) : (content ? marked.parse(content) : '<span class="animate-pulse">প্রসেস হচ্ছে...</span>')}
-                </div>
-            </div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-        return div;
-    }
-
     function showStatus(text) {
         const chip = document.createElement('div');
         chip.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold border border-green-200 animate-pulse mb-2";
@@ -345,6 +349,7 @@
         alert("কপি হয়েছে!");
     }
 
+    // Event Listeners
     input.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
@@ -357,13 +362,19 @@
         }
     });
 
-    marked.setOptions({
-        renderer: new marked.Renderer(),
-        highlight: function(code, lang) {
-            return Prism.highlight(code, Prism.languages[lang] || Prism.languages.markup, lang);
-        },
-        breaks: true
-    });
+    // Marked Renderer Fix
+    const renderer = new marked.Renderer();
+    renderer.code = (token) => {
+        const id = 'code-' + Math.random().toString(36).substr(2, 5);
+        return `<div class="my-4 rounded-lg overflow-hidden border border-gray-700 shadow-xl">
+            <div class="bg-gray-800 px-4 py-2 text-[10px] text-gray-400 flex justify-between">
+                <span>${token.lang || 'code'}</span>
+                <button onclick="copyCode('${id}')" class="hover:text-white"><i class="far fa-copy"></i> Copy</button>
+            </div>
+            <pre id="${id}" class="language-${token.lang}"><code class="language-${token.lang}">${escapeHtml(token.text)}</code></pre>
+        </div>`;
+    };
+    marked.setOptions({ renderer, breaks: true });
 </script>
 </body>
 </html>

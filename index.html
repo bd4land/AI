@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BD4land Master AI | 2025 Persistent</title>
+    <title>BD4land Master AI | 2025 Stable</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -30,130 +30,87 @@
 </head>
 <body class="flex text-gray-900">
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="sidebar border-r flex flex-col h-screen shadow-lg">
         <div class="p-4 bg-gray-50 border-b">
             <button onclick="createNewChat()" class="w-full bg-white border border-gray-300 rounded-xl py-2.5 text-sm font-bold text-gray-700 hover:bg-green-50 hover:border-green-600 transition flex items-center justify-center gap-2">
                 <i class="fas fa-plus text-green-600"></i> নতুন চ্যাট শুরু করুন
             </button>
         </div>
-        <div id="conv-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-            <!-- Conversations load here -->
-        </div>
+        <div id="conv-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
         <div class="p-4 border-t bg-gray-50 flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-[10px] shadow-md"><i class="fas fa-flag"></i></div>
-            <div class="text-[11px] font-bold text-green-800 uppercase tracking-tighter">BD4land Master<br><span class="text-gray-400">Secure Hybrid V3.5</span></div>
+            <div class="text-[11px] font-bold text-green-800 uppercase tracking-tighter">BD4land Master<br><span class="text-gray-400 text-[9px]">2025 HYBRID V3.5</span></div>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen relative">
         <header class="h-14 border-b bg-white/90 backdrop-blur flex items-center justify-between px-6 shadow-sm">
             <div class="flex items-center gap-4">
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="fas fa-bars text-xl"></i></button>
                 <h2 id="current-chat-title" class="font-bold text-gray-700 truncate max-w-[180px] md:max-w-md">নতুন কথোপকথন</h2>
             </div>
-            <div class="flex gap-2">
-                <div class="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">
-                    <i class="fas fa-circle text-[6px]"></i> 2025 ACTIVE
-                </div>
+            <div class="flex gap-2 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">
+                <i class="fas fa-circle text-[6px]"></i> 2025 ACTIVE
             </div>
         </header>
 
-        <!-- Chat Area -->
-        <div id="chat-box" class="chat-container overflow-y-auto p-4 md:px-24 lg:px-48 space-y-6">
-            <!-- Messages load here -->
-        </div>
+        <div id="chat-box" class="chat-container overflow-y-auto p-4 md:px-24 lg:px-48 space-y-6"></div>
 
-        <!-- Input Area -->
         <div class="p-4 md:px-24 lg:px-48 bg-white border-t">
             <div id="status-chips" class="flex gap-2 mb-2"></div>
-            
             <div id="image-preview-container" class="hidden mb-3 p-2 bg-gray-50 rounded-xl border border-dashed border-gray-300 relative inline-block">
                 <img id="image-preview" src="" class="h-20 rounded shadow-md border-2 border-white">
-                <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-lg hover:bg-red-600 transition">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-lg hover:bg-red-600 transition"><i class="fas fa-times"></i></button>
             </div>
-
-            <div class="relative flex items-end gap-2 bg-gray-50 rounded-2xl p-2 border border-gray-200 focus-within:bg-white focus-within:border-green-600 focus-within:shadow-xl transition-all">
+            <div class="relative flex items-end gap-2 bg-gray-50 rounded-2xl p-2 border border-gray-200 focus-within:bg-white focus-within:border-green-600 transition-all shadow-sm">
                 <label class="p-3 text-gray-400 hover:text-green-600 cursor-pointer transition">
                     <i class="fas fa-paperclip text-xl"></i>
                     <input type="file" id="image-input" class="hidden" accept="image/*" onchange="processImage(event)">
                 </label>
                 <textarea id="input" rows="1" placeholder="যেকোনো কিছু জিজ্ঞাসা করুন..." class="w-full bg-transparent px-2 py-3 focus:outline-none resize-none max-h-40 text-gray-700 font-medium"></textarea>
-                <button onclick="send()" id="send-btn" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 disabled:opacity-50 shadow-lg">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+                <button onclick="send()" id="send-btn" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 disabled:opacity-50 shadow-lg"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
 <script>
-    // --- Global Variables (Properly Defined) ---
-    let db;
-    let currentChatId = localStorage.getItem('currentChatId') || null;
-    let chatHistory = [];
-    let selectedImageBase64 = null;
-    
-    const box = document.getElementById('chat-box');
-    const input = document.getElementById('input');
-    const sendBtn = document.getElementById('send-btn');
-    const statusChips = document.getElementById('status-chips');
+    let db, currentChatId = localStorage.getItem('currentChatId') || null, chatHistory = [], selectedImageBase64 = null;
+    const box = document.getElementById('chat-box'), input = document.getElementById('input'), sendBtn = document.getElementById('send-btn'), statusChips = document.getElementById('status-chips');
 
-    // --- IndexedDB Configuration ---
-    const DB_NAME = "BD4land_V3_Persistent";
-    const dbRequest = indexedDB.open(DB_NAME, 1);
-
+    // DB Setup
+    const dbRequest = indexedDB.open("BD4land_DB_V25", 1);
     dbRequest.onupgradeneeded = (e) => {
         const d = e.target.result;
         d.createObjectStore("conversations", { keyPath: "id" });
-        d.createObjectStore("messages", { keyPath: "msgId", autoIncrement: true })
-         .createIndex("chatId", "chatId", { unique: false });
+        d.createObjectStore("messages", { keyPath: "msgId", autoIncrement: true }).createIndex("chatId", "chatId", { unique: false });
     };
-
-    dbRequest.onsuccess = (e) => {
-        db = e.target.result;
-        initApp();
-    };
+    dbRequest.onsuccess = (e) => { db = e.target.result; initApp(); };
 
     async function initApp() {
         renderConversationList();
-        if (currentChatId) {
-            await switchChat(currentChatId);
-        } else {
-            await createNewChat();
-        }
+        if (currentChatId) switchChat(currentChatId); else createNewChat();
     }
 
-    // --- Conversation Logic ---
     async function createNewChat() {
         const id = "chat_" + Date.now();
-        const newChat = { id, title: "নতুন কথোপকথন", time: Date.now() };
         const tx = db.transaction("conversations", "readwrite");
-        await tx.objectStore("conversations").add(newChat);
-        await switchChat(id);
+        await tx.objectStore("conversations").add({ id, title: "নতুন কথোপকথন", time: Date.now() });
+        switchChat(id);
     }
 
-    async function switchChat(id) {
+    function switchChat(id) {
         currentChatId = id;
         localStorage.setItem('currentChatId', id);
-        box.innerHTML = "";
-        chatHistory = [];
+        box.innerHTML = ""; chatHistory = [];
         document.getElementById('sidebar').classList.remove('active');
-        
-        // Load Conversation Title
+        renderConversationList();
+
         const tx = db.transaction(["conversations", "messages"], "readonly");
-        const convReq = tx.objectStore("conversations").get(id);
-        convReq.onsuccess = (e) => {
+        tx.objectStore("conversations").get(id).onsuccess = (e) => {
             if (e.target.result) document.getElementById('current-chat-title').innerText = e.target.result.title;
         };
-
-        // Load Messages
-        const msgIndex = tx.objectStore("messages").index("chatId");
-        const msgReq = msgIndex.getAll(id);
-        msgReq.onsuccess = () => {
-            const msgs = msgReq.result;
+        tx.objectStore("messages").index("chatId").getAll(id).onsuccess = (e) => {
+            const msgs = e.target.result;
             msgs.forEach(m => {
                 const div = appendMessage(m.content, m.role, m.image);
                 if (m.role === 'ai') div.querySelector('.content-area').innerHTML = marked.parse(m.content);
@@ -162,86 +119,59 @@
             Prism.highlightAll();
             box.scrollTop = box.scrollHeight;
         };
-        renderConversationList();
     }
 
-    async function renderConversationList() {
+    function renderConversationList() {
         const list = document.getElementById('conv-list');
         list.innerHTML = "";
         const tx = db.transaction("conversations", "readonly");
         tx.objectStore("conversations").getAll().onsuccess = (e) => {
-            const convs = e.target.result.sort((a, b) => b.time - a.time);
-            convs.forEach(c => {
+            e.target.result.sort((a,b)=>b.time-a.time).forEach(c => {
                 const div = document.createElement('div');
-                div.className = `group flex items-center justify-between p-3 text-sm rounded-xl cursor-pointer border border-transparent hover:bg-white transition ${c.id === currentChatId ? 'active shadow-sm' : 'text-gray-500 hover:text-gray-700'}`;
+                div.className = `group flex items-center justify-between p-3 text-sm rounded-xl cursor-pointer border border-transparent hover:bg-white transition ${c.id === currentChatId ? 'active shadow-sm bg-white' : 'text-gray-500'}`;
                 div.onclick = () => switchChat(c.id);
-                div.innerHTML = `
-                    <div class="flex items-center gap-3 truncate">
-                        <i class="far fa-message text-[12px]"></i>
-                        <span class="truncate font-medium">${c.title}</span>
-                    </div>
-                    <button onclick="event.stopPropagation(); deleteChat('${c.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
-                `;
+                div.innerHTML = `<div class="flex items-center gap-3 truncate"><i class="far fa-message"></i><span class="truncate font-medium">${c.title}</span></div>
+                    <button onclick="event.stopPropagation(); deleteChat('${c.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>`;
                 list.appendChild(div);
             });
         };
     }
 
     async function deleteChat(id) {
-        if (!confirm("এই চ্যাটটি কি মুছে ফেলতে চান?")) return;
+        if (!confirm("মুছে ফেলতে চান?")) return;
         const tx = db.transaction(["conversations", "messages"], "readwrite");
         tx.objectStore("conversations").delete(id);
-        if (currentChatId === id) {
-            localStorage.removeItem('currentChatId');
-            currentChatId = null;
-            location.reload();
-        } else {
-            renderConversationList();
-        }
+        if (currentChatId === id) { localStorage.removeItem('currentChatId'); currentChatId = null; location.reload(); } else renderConversationList();
     }
 
-    // --- Core Chat Functions ---
     async function send() {
         const prompt = input.value.trim();
         if (!prompt && !selectedImageBase64) return;
-
         const imgToSend = selectedImageBase64;
         appendMessage(prompt, 'user', imgToSend);
         
-        // Save User Message & Update Title
         const tx = db.transaction(["messages", "conversations"], "readwrite");
         tx.objectStore("messages").add({ chatId: currentChatId, role: 'user', content: prompt, image: imgToSend });
         
         if (chatHistory.length === 0 && prompt) {
-            const convStore = tx.objectStore("conversations");
-            convStore.get(currentChatId).onsuccess = (e) => {
+            const store = tx.objectStore("conversations");
+            store.get(currentChatId).onsuccess = (e) => {
                 const conv = e.target.result;
-                conv.title = prompt.substring(0, 25) + "...";
-                convStore.put(conv);
-                renderConversationList();
+                if(conv) { conv.title = prompt.substring(0, 25) + "..."; store.put(conv); renderConversationList(); }
             };
         }
 
-        input.value = '';
-        input.style.height = 'auto';
-        sendBtn.disabled = true;
-        clearImage();
-
-        const aiWrapper = appendMessage("", 'ai');
-        const contentArea = aiWrapper.querySelector('.content-area');
+        input.value = ''; input.style.height = 'auto'; sendBtn.disabled = true; clearImage();
+        const aiWrapper = appendMessage("", 'ai'), contentArea = aiWrapper.querySelector('.content-area');
         let fullText = "";
 
         try {
             const response = await fetch('https://ai.obaydul2009-info.workers.dev', { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, history: chatHistory, image: imgToSend })
             });
 
-            if (!response.ok) throw new Error("Connection failed");
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
+            const reader = response.body.getReader(), decoder = new TextDecoder();
             let buffer = "";
 
             while (true) {
@@ -255,124 +185,61 @@
                     if (line.trim().startsWith('data: ')) {
                         try {
                             const data = JSON.parse(line.trim().substring(6));
-                            if (data.type === 'text') {
-                                fullText += data.content;
-                                contentArea.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
-                            } else if (data.type === 'status') {
-                                showStatus(data.content);
-                            } else if (data.type === 'image') {
-                                contentArea.innerHTML = `<img src="${data.content}" class="rounded-xl shadow-lg border-2 border-white mt-2">`;
-                            }
+                            if (data.type === 'text') { fullText += data.content; contentArea.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>'; }
+                            else if (data.type === 'status') showStatus(data.content);
                         } catch (e) { }
                     }
                 }
                 box.scrollTop = box.scrollHeight;
             }
-            
             contentArea.querySelector('.cursor')?.remove();
             Prism.highlightAllUnder(aiWrapper);
-            
-            // Save AI Response
-            const tx2 = db.transaction("messages", "readwrite");
-            tx2.objectStore("messages").add({ chatId: currentChatId, role: 'ai', content: fullText });
+            db.transaction("messages", "readwrite").objectStore("messages").add({ chatId: currentChatId, role: 'ai', content: fullText });
             chatHistory.push({ role: 'user', content: prompt }, { role: 'ai', content: fullText });
-
-        } catch (e) {
-            contentArea.innerHTML = `<span class="text-red-500 font-bold">সার্ভারে সমস্যা হয়েছে। আবার চেষ্টা করুন।</span>`;
-        } finally {
-            sendBtn.disabled = false;
-        }
+        } catch (e) { contentArea.innerHTML = "সার্ভারে সমস্যা হয়েছে।"; } finally { sendBtn.disabled = false; }
     }
 
-    // --- Helpers ---
     function appendMessage(content, role, imageData = null) {
-        const div = document.createElement('div');
-        div.className = `flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
+        const div = document.createElement('div'); div.className = `flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
         let imgTag = imageData ? `<img src="data:image/jpeg;base64,${imageData}" class="max-h-60 rounded-xl mb-2 shadow-md border-2 border-white">` : '';
-        div.innerHTML = `
-            ${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white flex-shrink-0 font-bold shadow-md">B</div>' : ''}
+        div.innerHTML = `${role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white flex-shrink-0 font-bold shadow-md">B</div>' : ''}
             <div class="${role === 'user' ? 'user-msg' : 'ai-msg'} p-4 max-w-[85%] md:max-w-2xl overflow-hidden shadow-sm">
-                ${imgTag}
-                <div class="content-area prose prose-sm max-w-none">
-                    ${role === 'user' ? escapeHtml(content) : (content ? marked.parse(content) : '<span class="animate-pulse">প্রসেস হচ্ছে...</span>')}
-                </div>
+                ${imgTag}<div class="content-area prose prose-sm max-w-none">${role === 'user' ? escapeHtml(content) : (content ? marked.parse(content) : '<span class="animate-pulse">প্রসেস হচ্ছে...</span>')}</div>
             </div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-        return div;
+        box.appendChild(div); box.scrollTop = box.scrollHeight; return div;
     }
 
     function processImage(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+        const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * (MAX_WIDTH / img.width);
+                const canvas = document.createElement('canvas'); const MAX_WIDTH = 800;
+                canvas.width = MAX_WIDTH; canvas.height = img.height * (MAX_WIDTH / img.width);
                 canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                 selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 document.getElementById('image-preview').src = canvas.toDataURL('image/jpeg');
                 document.getElementById('image-preview-container').classList.remove('hidden');
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            }; img.src = e.target.result;
+        }; reader.readAsDataURL(file);
     }
 
-    function clearImage() {
-        selectedImageBase64 = null;
-        document.getElementById('image-input').value = "";
-        document.getElementById('image-preview-container').classList.add('hidden');
-    }
-
-    function showStatus(text) {
-        const chip = document.createElement('div');
-        chip.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold border border-green-200 animate-pulse mb-2";
-        chip.innerHTML = text;
-        statusChips.appendChild(chip);
-        setTimeout(() => chip.remove(), 4000);
-    }
-
-    function escapeHtml(text) {
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
-    }
-
+    function clearImage() { selectedImageBase64 = null; document.getElementById('image-input').value = ""; document.getElementById('image-preview-container').classList.add('hidden'); }
+    function showStatus(text) { const chip = document.createElement('div'); chip.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold border border-green-200 animate-pulse mb-2"; chip.innerHTML = text; statusChips.appendChild(chip); setTimeout(() => chip.remove(), 4000); }
+    function escapeHtml(text) { const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }; return text ? text.replace(/[&<>"']/g, m => map[m]) : ''; }
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+    function copyCode(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("কপি হয়েছে!"); }
+    input.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
 
-    function copyCode(id) {
-        navigator.clipboard.writeText(document.getElementById(id).innerText);
-        alert("কপি হয়েছে!");
-    }
-
-    // Event Listeners
-    input.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            send();
-        }
-    });
-
-    // Marked Renderer Fix
+    // Marked & Prism Logic
     const renderer = new marked.Renderer();
     renderer.code = (token) => {
         const id = 'code-' + Math.random().toString(36).substr(2, 5);
         return `<div class="my-4 rounded-lg overflow-hidden border border-gray-700 shadow-xl">
-            <div class="bg-gray-800 px-4 py-2 text-[10px] text-gray-400 flex justify-between">
-                <span>${token.lang || 'code'}</span>
-                <button onclick="copyCode('${id}')" class="hover:text-white"><i class="far fa-copy"></i> Copy</button>
-            </div>
-            <pre id="${id}" class="language-${token.lang}"><code class="language-${token.lang}">${escapeHtml(token.text)}</code></pre>
-        </div>`;
+            <div class="bg-gray-800 px-4 py-2 text-[10px] text-gray-400 flex justify-between"><span>${token.lang || 'code'}</span><button onclick="copyCode('${id}')" class="hover:text-white"><i class="far fa-copy"></i> Copy</button></div>
+            <pre id="${id}" class="language-${token.lang}"><code class="language-${token.lang}">${escapeHtml(token.text)}</code></pre></div>`;
     };
     marked.setOptions({ renderer, breaks: true });
 </script>

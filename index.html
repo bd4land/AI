@@ -5,17 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BD4LAND Master AI | 2025</title>
 
-<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Markdown -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- Prism -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
-<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -29,10 +24,10 @@ body{font-family:'Hind Siliguri',sans-serif;background:#f9fafb}
 </style>
 </head>
 
-<body class="flex h-screen text-gray-900">
+<body class="flex h-screen">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="w-72 bg-white border-r flex flex-col">
+<aside class="w-72 bg-white border-r flex flex-col">
 <div class="p-4 border-b">
 <button onclick="newChat()" class="w-full border rounded-xl py-2 font-bold">
 <i class="fa fa-plus"></i> নতুন চ্যাট
@@ -44,7 +39,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:#f9fafb}
 
 <!-- MAIN -->
 <main class="flex-1 flex flex-col">
-
 <header class="h-14 border-b bg-white flex items-center justify-between px-4">
 <h2 id="chatTitle" class="font-bold truncate">নতুন কথোপকথন</h2>
 <span class="text-xs bg-green-100 px-2 py-1 rounded">LIVE</span>
@@ -73,7 +67,6 @@ placeholder="বাংলাদেশ সম্পর্কিত যেকো�
 </button>
 </div>
 </div>
-
 </main>
 
 <script>
@@ -85,7 +78,6 @@ let current=null;
 let imgBase64=null;
 
 const box=q("chatBox"),input=q("input");
-
 function q(id){return document.getElementById(id)}
 
 function newChat(){
@@ -115,9 +107,10 @@ w.className="flex "+(role==="user"?"justify-end":"");
 w.innerHTML=`
 <div class="${role==="user"?"user":"ai"} max-w-2xl p-4">
 ${img?`<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded">`:""}
-<div class="content">${role==="user"?esc(text):"প্রসেস হচ্ছে..."}</div>
+<div class="content">${role==="user"?esc(text):""}</div>
 </div>`;
 box.appendChild(w);
+box.scrollTop=box.scrollHeight;
 return w.querySelector(".content");
 }
 
@@ -125,14 +118,12 @@ async function send(){
 let t=input.value.trim();
 if(!t&&!imgBase64)return;
 
-let userMsg={role:"user",text:t,img:imgBase64};
-chats[current].msgs.push(userMsg);
+chats[current].msgs.push({role:"user",text:t,img:imgBase64});
 draw("user",t,imgBase64);
-
 input.value="";clearImg();
 
 let aiBox=draw("assistant","");
-let full="",buf="";
+let full="",buffer="";
 
 const res=await fetch(API,{
 method:"POST",
@@ -153,9 +144,13 @@ const dec=new TextDecoder();
 while(true){
 const {value,done}=await reader.read();
 if(done)break;
-buf+=dec.decode(value,{stream:true});
-buf.split("\n\n").slice(0,-1).forEach(l=>{
-if(l.startsWith("data:")){
+
+buffer+=dec.decode(value,{stream:true});
+let parts=buffer.split("\n\n");
+buffer=parts.pop(); // 🔥 keep incomplete chunk
+
+for(let l of parts){
+if(!l.startsWith("data:"))continue;
 let d=JSON.parse(l.slice(5));
 if(d.type==="text"){
 full+=d.content;
@@ -163,7 +158,6 @@ aiBox.innerHTML=marked.parse(full)+'<span class="cursor"></span>';
 }
 if(d.type==="status")chip(d.content);
 }
-});
 }
 
 aiBox.innerHTML=marked.parse(full);
@@ -174,7 +168,8 @@ save();Prism.highlightAll();
 function chip(t){
 let d=document.createElement("div");
 d.className="bg-green-100 px-2 py-1 rounded text-xs";
-d.innerText=t;q("status").appendChild(d);
+d.innerText=t;
+q("status").appendChild(d);
 setTimeout(()=>d.remove(),4000);
 }
 
@@ -190,7 +185,6 @@ r.readAsDataURL(f);
 }
 
 function clearImg(){imgBase64=null;q("imgPreviewWrap").classList.add("hidden")}
-
 function save(){localStorage.setItem("bdChats",JSON.stringify(chats))}
 function esc(t){return t.replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))}
 

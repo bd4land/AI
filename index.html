@@ -118,38 +118,60 @@
             });
         }
 
-        async function send() {
-            const val = input.value.trim();
-            if(!val) return;
+        // আপনার index.html এর <script> ট্যাগের ভেতরের send() ফাংশনটি নিচেরটি দিয়ে রিপ্লেস করুন
+
+async function send() {
+    const val = input.value.trim();
+    if(!val) return;
+    
+    appendMessage(val, 'user');
+    input.value = '';
+    input.style.height = 'auto';
+    status.classList.remove('hidden');
+    sendBtn.disabled = true;
+
+    try {
+        // টাইমআউট হ্যান্ডেল করার জন্য AbortController (৬০ সেকেন্ড পর্যন্ত ওয়েট করবে)
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 60000); 
+
+        const res = await fetch('https://ai.bd4search.workers.dev', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                prompt: val, 
+                history: history.slice(-6) // শুধুমাত্র শেষ ৬টি মেসেজ পাঠাবে (মেমোরি বাঁচাবে)
+            }),
+            signal: controller.signal
+        });
+        
+        clearTimeout(id);
+        const data = await res.json();
+        status.classList.add('hidden');
+        sendBtn.disabled = false;
+
+        if(data.type === 'image') {
+            appendImage(data.content, data.message);
+        } else {
+            appendMessage(data.content, 'ai');
             
-            appendMessage(val, 'user');
-            input.value = '';
-            input.style.height = 'auto';
-            status.classList.remove('hidden');
-            sendBtn.disabled = true;
-
-            try {
-                const res = await fetch('https://ai.bd4search.workers.dev', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ prompt: val, history: history })
-                });
-                const data = await res.json();
-                status.classList.add('hidden');
-                sendBtn.disabled = false;
-
-                if(data.type === 'image') {
-                    appendImage(data.content, data.message);
-                } else {
-                    appendMessage(data.content, 'ai');
-                    history.push({role: 'user', content: val});
-                    history.push({role: 'assistant', content: data.content});
-                }
-            } catch(e) {
-                status.innerHTML = "<span class='text-red-500'>Error: সার্ভারে সমস্যা হয়েছে!</span>";
-                sendBtn.disabled = false;
-            }
+            // মেমোরিতে সেভ করার সময় টেক্সট ছোট করে রাখা (যাতে পরের রিকোয়েস্ট ফাস্ট হয়)
+            history.push({role: 'user', content: val.substring(0, 500)});
+            history.push({role: 'assistant', content: data.content.substring(0, 1000)});
+            
+            // হিস্ট্রি খুব বেশি বড় হতে দিবে না
+            if(history.length > 10) history = history.slice(-10);
         }
+    } catch(e) {
+        status.classList.add('hidden');
+        sendBtn.disabled = false;
+        if (e.name === 'AbortError') {
+            appendMessage("উত্তর তৈরি করতে অনেক সময় লাগছে। দয়া করে আবার চেষ্টা করুন বা ছোট প্রশ্ন করুন।", 'ai');
+        } else {
+            appendMessage("সার্ভারে সাময়িক সমস্যা হয়েছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।", 'ai');
+        }
+    }
+}
 
         function appendMessage(content, role) {
             const div = document.createElement('div');

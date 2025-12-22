@@ -5,12 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BD4LAND Master AI | 2025</title>
 
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Markdown -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+<!-- Prism -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -24,49 +29,58 @@ body{font-family:'Hind Siliguri',sans-serif;background:#f9fafb}
 </style>
 </head>
 
-<body class="flex h-screen">
+<body class="flex h-screen text-gray-900">
 
 <!-- SIDEBAR -->
 <aside class="w-72 bg-white border-r flex flex-col">
-<div class="p-4 border-b">
-<button onclick="newChat()" class="w-full border rounded-xl py-2 font-bold">
-<i class="fa fa-plus"></i> নতুন চ্যাট
-</button>
-</div>
-<div id="chatList" class="flex-1 overflow-y-auto p-2"></div>
-<div class="p-3 text-xs font-bold text-green-700">BD4LAND AI • 2025</div>
+  <div class="p-4 border-b">
+    <button onclick="newChat()" class="w-full border rounded-xl py-2 font-bold">
+      <i class="fa fa-plus"></i> নতুন চ্যাট
+    </button>
+  </div>
+  <div id="chatList" class="flex-1 overflow-y-auto p-2"></div>
+  <div class="p-3 text-xs font-bold text-green-700">BD4LAND AI • 2025</div>
 </aside>
 
 <!-- MAIN -->
 <main class="flex-1 flex flex-col">
+
 <header class="h-14 border-b bg-white flex items-center justify-between px-4">
-<h2 id="chatTitle" class="font-bold truncate">নতুন কথোপকথন</h2>
-<span class="text-xs bg-green-100 px-2 py-1 rounded">LIVE</span>
+  <h2 id="chatTitle" class="font-bold truncate">নতুন কথোপকথন</h2>
+  <span class="text-xs bg-green-100 px-2 py-1 rounded">LIVE</span>
 </header>
 
 <div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-6"></div>
 
 <!-- INPUT -->
 <div class="border-t bg-white p-3">
-<div id="status" class="flex gap-2 mb-2"></div>
+  <div id="status" class="flex gap-2 mb-2"></div>
 
-<div id="imgPreviewWrap" class="hidden mb-2 relative inline-block">
-<img id="imgPreview" class="h-16 rounded">
-<button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">×</button>
+  <div id="imgPreviewWrap" class="hidden mb-2 relative inline-block">
+    <img id="imgPreview" class="h-16 rounded">
+    <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">×</button>
+  </div>
+
+  <div class="flex gap-2 bg-gray-100 rounded-2xl p-2 items-end">
+    <label class="cursor-pointer p-2">
+      <i class="fa fa-camera"></i>
+      <input hidden type="file" accept="image/*" onchange="loadImg(event)">
+    </label>
+
+    <button onclick="removeBG()" class="p-2" title="Remove Background">
+      <i class="fa fa-magic"></i>
+    </button>
+
+    <textarea id="input" rows="1"
+      class="flex-1 bg-transparent resize-none outline-none"
+      placeholder="বাংলাদেশ সম্পর্কিত যেকোনো প্রশ্ন করুন..."></textarea>
+
+    <button onclick="send()" class="bg-green-700 text-white w-11 h-11 rounded-xl">
+      <i class="fa fa-paper-plane"></i>
+    </button>
+  </div>
 </div>
 
-<div class="flex gap-2 bg-gray-100 rounded-2xl p-2 items-end">
-<label class="cursor-pointer p-2">
-<i class="fa fa-camera"></i>
-<input hidden type="file" accept="image/*" onchange="loadImg(event)">
-</label>
-<textarea id="input" rows="1" class="flex-1 bg-transparent resize-none outline-none"
-placeholder="বাংলাদেশ সম্পর্কিত যেকোনো প্রশ্ন করুন..."></textarea>
-<button onclick="send()" class="bg-green-700 text-white w-11 h-11 rounded-xl">
-<i class="fa fa-paper-plane"></i>
-</button>
-</div>
-</div>
 </main>
 
 <script>
@@ -78,118 +92,169 @@ let current=null;
 let imgBase64=null;
 
 const box=q("chatBox"),input=q("input");
+
 function q(id){return document.getElementById(id)}
 
 function newChat(){
-current="chat_"+Date.now();
-chats[current]={title:"নতুন কথোপকথন",msgs:[]};
-save();render();
+  current="chat_"+Date.now();
+  chats[current]={title:"নতুন কথোপকথন",msgs:[]};
+  save();render();
 }
 
 function render(){
-q("chatList").innerHTML="";
-Object.keys(chats).reverse().forEach(id=>{
-let d=document.createElement("div");
-d.className="p-2 cursor-pointer "+(id===current?"bg-green-50":"");
-d.innerText=chats[id].title;
-d.onclick=()=>{current=id;render()}
-q("chatList").appendChild(d);
-});
-box.innerHTML="";
-chats[current].msgs.forEach(m=>draw(m.role,m.text,m.img));
-q("chatTitle").innerText=chats[current].title;
-box.scrollTop=box.scrollHeight;
+  q("chatList").innerHTML="";
+  Object.keys(chats).reverse().forEach(id=>{
+    const d=document.createElement("div");
+    d.className="p-2 flex justify-between items-center hover:bg-green-50";
+
+    const t=document.createElement("span");
+    t.className="cursor-pointer truncate";
+    t.innerText=chats[id].title;
+    t.onclick=()=>{current=id;render()};
+
+    const del=document.createElement("button");
+    del.innerHTML="🗑️";
+    del.onclick=()=>{
+      if(confirm("এই কথোপকথন মুছে ফেলবেন?")){
+        delete chats[id];
+        if(current===id) newChat();
+        save(); render();
+      }
+    };
+
+    d.append(t,del);
+    q("chatList").appendChild(d);
+  });
+
+  box.innerHTML="";
+  chats[current]?.msgs.forEach(m=>draw(m.role,m.text,m.img));
+  q("chatTitle").innerText=chats[current]?.title||"";
+  box.scrollTop=box.scrollHeight;
 }
 
 function draw(role,text,img){
-let w=document.createElement("div");
-w.className="flex "+(role==="user"?"justify-end":"");
-w.innerHTML=`
-<div class="${role==="user"?"user":"ai"} max-w-2xl p-4">
-${img?`<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded">`:""}
-<div class="content">${role==="user"?esc(text):""}</div>
-</div>`;
-box.appendChild(w);
-box.scrollTop=box.scrollHeight;
-return w.querySelector(".content");
+  const w=document.createElement("div");
+  w.className="flex "+(role==="user"?"justify-end":"");
+  w.innerHTML=`
+  <div class="${role==="user"?"user":"ai"} max-w-2xl p-4">
+    ${img?`<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded">`:""}
+    <div class="content">${role==="user"?esc(text):"প্রসেস হচ্ছে..."}</div>
+  </div>`;
+  box.appendChild(w);
+  return w.querySelector(".content");
 }
 
 async function send(){
-let t=input.value.trim();
-if(!t&&!imgBase64)return;
+  const t=input.value.trim();
+  if(!t && !imgBase64) return;
 
-chats[current].msgs.push({role:"user",text:t,img:imgBase64});
-draw("user",t,imgBase64);
-input.value="";clearImg();
+  chats[current].msgs.push({role:"user",text:t,img:imgBase64});
+  draw("user",t,imgBase64);
 
-let aiBox=draw("assistant","");
-let full="",buffer="";
+  input.value=""; clearImg();
 
-const res=await fetch(API,{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"X-Custom-Auth":AUTH
-},
-body:JSON.stringify({
-prompt:t,
-image:imgBase64,
-history:chats[current].msgs.slice(-8)
-})
-});
+  const aiBox=draw("assistant","");
+  let full="",buf="";
 
-const reader=res.body.getReader();
-const dec=new TextDecoder();
+  const res=await fetch(API,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-Custom-Auth":AUTH
+    },
+    body:JSON.stringify({
+      prompt:t,
+      image:imgBase64,
+      history:chats[current].msgs.slice(-8)
+    })
+  });
 
-while(true){
-const {value,done}=await reader.read();
-if(done)break;
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
 
-buffer+=dec.decode(value,{stream:true});
-let parts=buffer.split("\n\n");
-buffer=parts.pop(); // 🔥 keep incomplete chunk
+  while(true){
+    const {value,done}=await reader.read();
+    if(done)break;
+    buf+=dec.decode(value,{stream:true});
+    buf.split("\n\n").slice(0,-1).forEach(l=>{
+      if(l.startsWith("data:")){
+        const d=JSON.parse(l.slice(5));
+        if(d.type==="text"){
+          full+=d.content;
+          aiBox.innerHTML=marked.parse(full)+'<span class="cursor"></span>';
+        }
+        if(d.type==="status") chip(d.content);
+      }
+    });
+  }
 
-for(let l of parts){
-if(!l.startsWith("data:"))continue;
-let d=JSON.parse(l.slice(5));
-if(d.type==="text"){
-full+=d.content;
-aiBox.innerHTML=marked.parse(full)+'<span class="cursor"></span>';
-}
-if(d.type==="status")chip(d.content);
-}
-}
-
-aiBox.innerHTML=marked.parse(full);
-chats[current].msgs.push({role:"assistant",text:full});
-save();Prism.highlightAll();
+  aiBox.innerHTML=marked.parse(full);
+  chats[current].msgs.push({role:"assistant",text:full});
+  save(); Prism.highlightAll();
 }
 
 function chip(t){
-let d=document.createElement("div");
-d.className="bg-green-100 px-2 py-1 rounded text-xs";
-d.innerText=t;
-q("status").appendChild(d);
-setTimeout(()=>d.remove(),4000);
+  const d=document.createElement("div");
+  d.className="bg-green-100 px-2 py-1 rounded text-xs";
+  d.innerText=t;
+  q("status").appendChild(d);
+  setTimeout(()=>d.remove(),4000);
 }
 
 function loadImg(e){
-let f=e.target.files[0];if(!f)return;
-let r=new FileReader();
-r.onload=x=>{
-imgBase64=x.target.result.split(",")[1];
-q("imgPreview").src=x.target.result;
-q("imgPreviewWrap").classList.remove("hidden");
-}
-r.readAsDataURL(f);
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=x=>{
+    imgBase64=x.target.result.split(",")[1];
+    q("imgPreview").src=x.target.result;
+    q("imgPreviewWrap").classList.remove("hidden");
+  }
+  r.readAsDataURL(f);
 }
 
-function clearImg(){imgBase64=null;q("imgPreviewWrap").classList.add("hidden")}
-function save(){localStorage.setItem("bdChats",JSON.stringify(chats))}
-function esc(t){return t.replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))}
+function removeBG(){
+  if(!imgBase64) return alert("প্রথমে ছবি দিন");
+  const img=new Image();
+  img.src="data:image/jpeg;base64,"+imgBase64;
+  img.onload=()=>{
+    const c=document.createElement("canvas");
+    c.width=img.width; c.height=img.height;
+    const ctx=c.getContext("2d");
+    ctx.drawImage(img,0,0);
+    const d=ctx.getImageData(0,0,c.width,c.height);
+    for(let i=0;i<d.data.length;i+=4){
+      if(d.data[i]>240 && d.data[i+1]>240 && d.data[i+2]>240){
+        d.data[i+3]=0;
+      }
+    }
+    ctx.putImageData(d,0,0);
+    imgBase64=c.toDataURL("image/png").split(",")[1];
+    q("imgPreview").src=c.toDataURL("image/png");
+  }
+}
 
-newChat();
+function clearImg(){
+  imgBase64=null;
+  q("imgPreviewWrap").classList.add("hidden");
+}
+
+function save(){
+  localStorage.setItem("bdChats",JSON.stringify(chats));
+}
+
+function esc(t){
+  return t.replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+}
+
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+});
+
 marked.setOptions({breaks:true});
+newChat();
 </script>
 </body>
 </html>

@@ -150,14 +150,12 @@
             let fullAIResponse = "";
 
             try {
-                const response = await fetch('http://localhost:8000/chat', { // আপনার ব্যাকএন্ডের সঠিক URL দিন
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        prompt: prompt, 
-                        history: chatHistory.slice(-6) 
-                    })
-                });
+                // আপনার HTML ফাইলে এই লাইনটি এভাবে লিখুন:
+const response = await fetch('https://ai.bd4search.workers.dev', { 
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ prompt: prompt, history: chatHistory })
+});
 
                 if (!response.ok) throw new Error("সার্ভার রেসপন্স করছে না");
 

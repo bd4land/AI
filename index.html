@@ -134,15 +134,17 @@ async function handleSend() {
     input.value = ""; clearImg();
     document.getElementById("sendBtn").disabled = true;
 
-    const aiPlaceholder = appendUI("assistant", "");
+   const aiPlaceholder = appendUI("assistant", "");
     let fullRes = "";
 
     try {
         const res = await fetch(API, {
             method: "POST",
             headers: { "Content-Type": "application/json", "X-Custom-Auth": AUTH },
-            body: JSON.stringify({ prompt: text, image: currentImg, history: chats[activeId].msgs.slice(-10) })
+            body: JSON.stringify({ prompt: text, image: currentImg, history: chats[activeId].msgs.slice(-8) })
         });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}: সার্ভার থেকে রেসপন্স আসছে না।`);
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -154,7 +156,7 @@ async function handleSend() {
             
             buffer += decoder.decode(value, { stream: true });
             let lines = buffer.split("\n");
-            buffer = lines.pop(); // অসম্পূর্ণ লাইন বাফারে রেখে দিন
+            buffer = lines.pop(); 
 
             for (let line of lines) {
                 let trimmed = line.trim();
@@ -164,10 +166,13 @@ async function handleSend() {
                         if (data.type === "text") {
                             fullRes += data.content;
                             aiPlaceholder.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
+                        } else if (data.type === "status") {
+                            showStatus(data.content);
+                        } else if (data.type === "error") {
+                            aiPlaceholder.innerHTML = `<div class="p-2 border border-red-200 bg-red-50 text-red-700 rounded text-xs"><b>DEBUG ERROR:</b> ${data.content}</div>`;
+                            throw new Error(data.content);
                         }
-                        if (data.type === "status") showStatus(data.content);
-                        if (data.type === "error") throw new Error(data.content);
-                    } catch (e) { console.error("JSON Error", e); }
+                    } catch (e) { console.warn("Partial data skip"); }
                 }
             }
             document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
@@ -175,25 +180,28 @@ async function handleSend() {
 
         aiPlaceholder.innerHTML = marked.parse(fullRes);
         chats[activeId].msgs.push({ role: "assistant", text: fullRes });
-        save(); Prism.highlightAll();
+        save();
     } catch (e) {
-        aiPlaceholder.innerHTML = `<span class="text-red-500">Error: ${e.message}</span>`;
+        aiPlaceholder.innerHTML = `<div class="text-red-500 p-2 text-xs font-mono bg-red-50 rounded">System Crash: ${e.message}<br>চেক করুন: ইন্টারনেট বা Hugging Face Token লিমিট।</div>`;
     } finally {
         document.getElementById("sendBtn").disabled = false;
     }
 }
 
+// ইমেজ রিসাইজার (ভিশন মডেল ফিক্সের জন্য)
 function handleImg(e) {
     const file = e.target.files[0]; if(!file) return;
+    showStatus("📸 ছবি প্রসেস করছি...");
     const r = new FileReader();
     r.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
             const c = document.createElement("canvas");
-            const max = 800; const s = max / Math.max(img.width, img.height);
+            const max = 700; // ভিশন মডেলের জন্য ছোট সাইজ নিরাপদ
+            const s = max / Math.max(img.width, img.height);
             c.width = img.width * s; c.height = img.height * s;
             c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-            selectedImg = c.toDataURL("image/jpeg", 0.7).split(",")[1];
+            selectedImg = c.toDataURL("image/jpeg", 0.6).split(",")[1]; // Quality: 0.6 (কম্প্রেসড)
             document.getElementById("imgPreview").src = c.toDataURL("image/jpeg");
             document.getElementById("imgWrap").classList.remove("hidden");
         };
@@ -201,23 +209,6 @@ function handleImg(e) {
     };
     r.readAsDataURL(file);
 }
-
-function showStatus(t) {
-    const s = document.getElementById("status");
-    const d = document.createElement("div");
-    d.className = "text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded animate-pulse border border-blue-200";
-    d.innerText = t; s.appendChild(d);
-    setTimeout(() => d.remove(), 4000);
-}
-
-function clearImg() { selectedImg = null; document.getElementById("imgWrap").classList.add("hidden"); }
-
-document.getElementById("userInput").addEventListener("keydown", e => {
-    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-});
-
-if(!activeId || !chats[activeId]) newChat(); else render();
-marked.setOptions({ breaks: true });
 </script>
 </body>
 </html>

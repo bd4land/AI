@@ -10,55 +10,71 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-        :root { --bd: #006a4e; }
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f9fafb; overflow: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&display=swap');
+        :root { --bd-green: #006a4e; --bd-red: #f42a41; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; overflow: hidden; }
         .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; transition: 0.3s; z-index: 50; }
         @media (max-width: 768px) { .sidebar { position: absolute; left: -280px; height: 100%; } .sidebar.active { left: 0; } }
-        .ai-bubble { background: #fff; border: 1px solid #e5e7eb; border-radius: 2px 18px 18px 18px; }
-        .user-bubble { background: var(--bd); color: #fff; border-radius: 18px 18px 2px 18px; }
-        .active-chat { background: #f0fdf4; border-left: 4px solid var(--bd); font-weight: bold; color: var(--bd); }
-        .cursor { display: inline-block; width: 3px; height: 16px; background: var(--bd); animation: blink 1s infinite; }
+        .ai-bubble { background: #fff; border: 1px solid #e2e8f0; border-radius: 2px 18px 18px 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .user-bubble { background: var(--bd-green); color: #fff; border-radius: 18px 18px 2px 18px; box-shadow: 0 4px 6px rgba(0, 106, 78, 0.1); }
+        .active-chat { background: #f0fdf4; border-left: 4px solid var(--bd-green); font-weight: bold; color: var(--bd-green); }
+        .cursor { display: inline-block; width: 2px; height: 16px; background: var(--bd-green); animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
+        /* প্রসেসিং অ্যানিমেশন */
+        .dot-flashing { position: relative; width: 10px; height: 10px; border-radius: 5px; background-color: var(--bd-green); color: var(--bd-green); animation: dot-flashing 1s infinite linear alternate; animation-delay: .5s; }
+        .dot-flashing::before, .dot-flashing::after { content: ''; display: inline-block; position: absolute; top: 0; }
+        .dot-flashing::before { left: -15px; width: 10px; height: 10px; border-radius: 5px; background-color: var(--bd-green); color: var(--bd-green); animation: dot-flashing 1s infinite alternate; animation-delay: 0s; }
+        .dot-flashing::after { left: 15px; width: 10px; height: 10px; border-radius: 5px; background-color: var(--bd-green); color: var(--bd-green); animation: dot-flashing 1s infinite alternate; animation-delay: 1s; }
+        @keyframes dot-flashing { 0% { background-color: var(--bd-green); } 50%, 100% { background-color: #ebe6ff; } }
     </style>
 </head>
 <body class="flex h-screen text-gray-900">
 
 <!-- Sidebar -->
-<aside id="sidebar" class="sidebar flex flex-col">
-    <div class="p-4 border-b">
-        <button onclick="newChat()" class="w-full bg-green-700 text-white rounded-xl py-2.5 font-bold hover:bg-green-800 transition shadow-md">
-            <i class="fa fa-plus mr-1"></i> নতুন চ্যাট
+<aside id="sidebar" class="sidebar flex flex-col shadow-2xl">
+    <div class="p-4 border-b bg-gray-50">
+        <button onclick="newChat()" class="w-full bg-white border border-gray-300 rounded-xl py-2.5 font-bold text-gray-700 hover:border-green-600 hover:text-green-600 transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa fa-plus text-xs"></i> নতুন চ্যাট শুরু করুন
         </button>
     </div>
     <div id="chatList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-    <div class="p-4 border-t text-[10px] font-bold text-gray-400 uppercase">BD4LAND MASTER V3.5 • 2025</div>
+    <div class="p-4 border-t text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
+        BD4LAND MASTER V3.5 • 2025
+    </div>
 </aside>
 
 <!-- Main -->
-<main class="flex-1 flex flex-col relative bg-gray-50">
-    <header class="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
+<main class="flex-1 flex flex-col relative bg-[#f9fafb]">
+    <header class="h-14 bg-white/80 backdrop-blur-md border-b flex items-center justify-between px-6 shadow-sm sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <button onclick="document.getElementById('sidebar').classList.toggle('active')" class="md:hidden text-gray-500"><i class="fa fa-bars"></i></button>
+            <button onclick="document.getElementById('sidebar').classList.toggle('active')" class="md:hidden text-gray-500 p-2 hover:bg-gray-100 rounded-lg"><i class="fa fa-bars"></i></button>
             <h2 id="chatTitle" class="font-bold text-gray-700 truncate max-w-[180px] md:max-w-md">নতুন কথোপকথন</h2>
         </div>
-        <div class="flex items-center gap-2 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full border">
-            <i class="fa fa-circle text-[6px]"></i> 2025 LIVE
+        <div class="flex items-center gap-2 text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+            <i class="fa fa-circle text-[6px] animate-pulse"></i> 2025 LIVE ENGINE
         </div>
     </header>
 
-    <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-32 lg:px-64 space-y-6"></div>
+    <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-32 lg:px-64 space-y-6">
+        <!-- মেসেজ এখানে দেখাবে -->
+    </div>
 
-    <div class="p-4 bg-white border-t">
-        <div id="status" class="flex gap-2 mb-2"></div>
-        <div id="imgWrap" class="hidden mb-2 relative inline-block">
-            <img id="imgPreview" class="h-20 rounded border-2 border-green-500 shadow-md">
-            <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-lg">×</button>
+    <!-- Input -->
+    <div class="p-4 md:px-32 lg:px-64 bg-white border-t shadow-inner">
+        <div id="status" class="flex flex-wrap gap-2 mb-2"></div>
+        <div id="imgWrap" class="hidden mb-3 relative inline-block">
+            <img id="imgPreview" class="h-24 rounded-lg border-2 border-green-500 shadow-lg">
+            <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-xl hover:bg-red-700">×</button>
         </div>
-        <div class="max-w-4xl mx-auto flex gap-2 bg-gray-100 rounded-2xl p-2 items-end border focus-within:bg-white focus-within:border-green-600 transition-all shadow-lg">
-            <label class="cursor-pointer p-3 text-gray-400 hover:text-green-600"><i class="fa fa-image text-xl"></i><input type="file" hidden accept="image/*" onchange="handleImg(event)"></label>
-            <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40" placeholder="জিজ্ঞাসা করুন..."></textarea>
-            <button id="sendBtn" onclick="handleSend()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50"><i class="fa fa-paper-plane"></i></button>
+        <div class="max-w-4xl mx-auto flex gap-2 bg-gray-50 rounded-2xl p-2 items-end border border-gray-200 focus-within:bg-white focus-within:border-green-600 transition-all shadow-md">
+            <label class="cursor-pointer p-3 text-gray-400 hover:text-green-600 transition">
+                <i class="fa fa-camera text-xl"></i>
+                <input type="file" id="image-input" hidden accept="image/*" onchange="handleImg(event)">
+            </label>
+            <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40 text-gray-700 font-medium" placeholder="আসসালামু আলাইকুম, আজ আপনাকে কীভাবে সাহায্য করতে পারি?"></textarea>
+            <button id="sendBtn" onclick="handleSend()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50 shadow-lg">
+                <i class="fa fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 </main>
@@ -71,7 +87,10 @@ let chats = JSON.parse(localStorage.getItem("bd_chats_v4") || "{}");
 let activeId = localStorage.getItem("active_id_v4");
 let selectedImg = null;
 
-function save() { localStorage.setItem("bd_chats_v4", JSON.stringify(chats)); localStorage.setItem("active_id_v4", activeId); }
+function save() { 
+    localStorage.setItem("bd_chats_v4", JSON.stringify(chats)); 
+    localStorage.setItem("active_id_v4", activeId); 
+}
 
 function newChat() {
     activeId = "chat_" + Date.now();
@@ -79,12 +98,12 @@ function newChat() {
     save(); render();
 }
 
-function switchChat(id) { activeId = id; save(); render(); }
+function switchChat(id) { activeId = id; render(); }
 
 function deleteChat(id) {
-    if(confirm("এই চ্যাটটি মুছে ফেলবেন?")) {
+    if(confirm("এই চ্যাটটি কি চিরতরে মুছে ফেলবেন?")) {
         delete chats[id];
-        if(activeId === id) activeId = Object.keys(chats)[0] || null;
+        activeId = Object.keys(chats)[0] || null;
         if(!activeId) newChat(); else { save(); render(); }
     }
 }
@@ -112,9 +131,9 @@ function appendUI(role, text, img) {
     const div = document.createElement("div");
     div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
     div.innerHTML = `
-        <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[85%] md:max-w-2xl p-4 shadow-sm">
-            ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded-lg max-h-64 shadow-md">` : ""}
-            <div class="markdown-body text-sm leading-relaxed">${text ? marked.parse(text) : '<span class="animate-pulse">...</span>'}</div>
+        <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[90%] md:max-w-2xl p-4 shadow-sm">
+            ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-3 rounded-lg max-h-64 shadow-md border-2 border-white">` : ""}
+            <div class="markdown-body text-sm leading-relaxed text-wrap break-words">${text ? marked.parse(text) : '<div class="flex items-center gap-3 py-2"><div class="dot-flashing"></div><span class="text-xs text-gray-400 font-bold uppercase">Processing</span></div>'}</div>
         </div>`;
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
@@ -134,7 +153,7 @@ async function handleSend() {
     input.value = ""; clearImg();
     document.getElementById("sendBtn").disabled = true;
 
-   const aiPlaceholder = appendUI("assistant", "");
+    const aiPlaceholder = appendUI("assistant", "");
     let fullRes = "";
 
     try {
@@ -144,7 +163,10 @@ async function handleSend() {
             body: JSON.stringify({ prompt: text, image: currentImg, history: chats[activeId].msgs.slice(-8) })
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}: সার্ভার থেকে রেসপন্স আসছে না।`);
+        if (!res.ok) {
+             if(res.status === 503) throw new Error("ব্যাকএন্ড ইঞ্জিন ঘুমিয়ে আছে। আমি জাগিয়ে তুলছি, ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+             throw new Error(`সার্ভার এরর (HTTP ${res.status})`);
+        }
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -166,13 +188,10 @@ async function handleSend() {
                         if (data.type === "text") {
                             fullRes += data.content;
                             aiPlaceholder.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
-                        } else if (data.type === "status") {
-                            showStatus(data.content);
-                        } else if (data.type === "error") {
-                            aiPlaceholder.innerHTML = `<div class="p-2 border border-red-200 bg-red-50 text-red-700 rounded text-xs"><b>DEBUG ERROR:</b> ${data.content}</div>`;
-                            throw new Error(data.content);
                         }
-                    } catch (e) { console.warn("Partial data skip"); }
+                        if (data.type === "status") showStatus(data.content);
+                        if (data.type === "error") throw new Error(data.content);
+                    } catch (e) { console.error("Parse Fail:", e); }
                 }
             }
             document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
@@ -181,34 +200,59 @@ async function handleSend() {
         aiPlaceholder.innerHTML = marked.parse(fullRes);
         chats[activeId].msgs.push({ role: "assistant", text: fullRes });
         save();
+        Prism.highlightAllUnder(aiPlaceholder.parentElement);
     } catch (e) {
-        aiPlaceholder.innerHTML = `<div class="text-red-500 p-2 text-xs font-mono bg-red-50 rounded">System Crash: ${e.message}<br>চেক করুন: ইন্টারনেট বা Hugging Face Token লিমিট।</div>`;
+        aiPlaceholder.innerHTML = `<div class="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs font-mono"><b>SYSTEM DEBUG:</b><br>${e.message}</div>`;
     } finally {
         document.getElementById("sendBtn").disabled = false;
     }
 }
 
-// ইমেজ রিসাইজার (ভিশন মডেল ফিক্সের জন্য)
+// ভিশন মডেল ফিক্সের জন্য উন্নত ইমেজ রিসাইজার
 function handleImg(e) {
     const file = e.target.files[0]; if(!file) return;
-    showStatus("📸 ছবি প্রসেস করছি...");
+    showStatus("📸 ছবি প্রস্তুত হচ্ছে...");
     const r = new FileReader();
     r.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-            const c = document.createElement("canvas");
-            const max = 700; // ভিশন মডেলের জন্য ছোট সাইজ নিরাপদ
-            const s = max / Math.max(img.width, img.height);
-            c.width = img.width * s; c.height = img.height * s;
-            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-            selectedImg = c.toDataURL("image/jpeg", 0.6).split(",")[1]; // Quality: 0.6 (কম্প্রেসড)
-            document.getElementById("imgPreview").src = c.toDataURL("image/jpeg");
+            const canvas = document.createElement("canvas");
+            const max_dim = 600; // ভিশন মডেলের জন্য এটিই সবচেয়ে স্থিতিশীল সাইজ
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > max_dim) { h *= max_dim / w; w = max_dim; } } 
+            else { if (h > max_dim) { w *= max_dim / h; h = max_dim; } }
+            
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            
+            // Quality 0.5 (কম্প্রেসড - যাতে ব্যাকএন্ড হ্যাং না হয়)
+            selectedImg = canvas.toDataURL("image/jpeg", 0.5).split(",")[1];
+            document.getElementById("imgPreview").src = canvas.toDataURL("image/jpeg");
             document.getElementById("imgWrap").classList.remove("hidden");
         };
         img.src = ev.target.result;
     };
     r.readAsDataURL(file);
 }
+
+function showStatus(t) {
+    const s = document.getElementById("status");
+    const d = document.createElement("div");
+    d.className = "text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200 font-bold animate-pulse";
+    d.innerHTML = `<i class="fa fa-info-circle mr-1"></i> ${t}`;
+    s.appendChild(d);
+    setTimeout(() => d.remove(), 5000);
+}
+
+function clearImg() { selectedImg = null; document.getElementById("imgWrap").classList.add("hidden"); document.getElementById("image-input").value = ""; }
+
+document.getElementById("userInput").addEventListener("keydown", e => {
+    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+if(!activeId || !chats[activeId]) newChat(); else render();
+marked.setOptions({ breaks: true, gfm: true });
 </script>
 </body>
 </html>

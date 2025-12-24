@@ -1,260 +1,221 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BD4LAND Master AI | 2025</title>
-
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Markdown -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-<!-- Prism -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-:root{--bd:#006a4e}
-body{font-family:'Hind Siliguri',sans-serif;background:#f9fafb}
-.ai{background:#fff;border:1px solid #e5e7eb;border-radius:6px 18px 18px 18px}
-.user{background:var(--bd);color:#fff;border-radius:18px 18px 6px 18px}
-.cursor{display:inline-block;width:3px;height:16px;background:var(--bd);animation:blink 1s infinite}
-@keyframes blink{50%{opacity:0}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD4land Master AI | 2025 Persistent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f3f4f6; }
+        .ai-bubble { background: white; border-radius: 2px 18px 18px 18px; border: 1px solid #e5e7eb; }
+        .user-bubble { background: #006a4e; color: white; border-radius: 18px 18px 2px 18px; }
+        .cursor { display: inline-block; width: 2px; height: 15px; background: #006a4e; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
 </head>
+<body class="flex h-screen overflow-hidden">
 
-<body class="flex h-screen text-gray-900">
+    <!-- Sidebar -->
+    <aside class="w-72 bg-white border-r flex flex-col hidden md:flex">
+        <div class="p-4 border-b">
+            <button onclick="createNewChat()" class="w-full bg-green-700 text-white rounded-xl py-2 font-bold hover:bg-green-800 transition">
+                <i class="fa fa-plus mr-1"></i> নতুন চ্যাট
+            </button>
+        </div>
+        <div id="chatList" class="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin"></div>
+        <div class="p-4 border-t text-xs font-bold text-gray-400">BD4LAND AI V3.5 • 2025</div>
+    </aside>
 
-<!-- SIDEBAR -->
-<aside class="w-72 bg-white border-r flex flex-col">
-  <div class="p-4 border-b">
-    <button onclick="newChat()" class="w-full border rounded-xl py-2 font-bold">
-      <i class="fa fa-plus"></i> নতুন চ্যাট
-    </button>
-  </div>
-  <div id="chatList" class="flex-1 overflow-y-auto p-2"></div>
-  <div class="p-3 text-xs font-bold text-green-700">BD4LAND AI • 2025</div>
-</aside>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col relative">
+        <header class="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
+            <h2 id="chatTitle" class="font-bold text-gray-700 truncate">নতুন কথোপকথন</h2>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-xs font-bold text-green-600 uppercase">Online</span>
+            </div>
+        </header>
 
-<!-- MAIN -->
-<main class="flex-1 flex flex-col">
+        <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-20 space-y-6 bg-gray-50"></div>
 
-<header class="h-14 border-b bg-white flex items-center justify-between px-4">
-  <h2 id="chatTitle" class="font-bold truncate">নতুন কথোপকথন</h2>
-  <span class="text-xs bg-green-100 px-2 py-1 rounded">LIVE</span>
-</header>
+        <!-- Input Area -->
+        <div class="p-4 bg-white border-t">
+            <div id="statusArea" class="flex gap-2 mb-2"></div>
+            
+            <div id="imgPreviewWrap" class="hidden mb-2 relative inline-block">
+                <img id="imgPreview" class="h-20 rounded-lg border-2 border-green-500 shadow-md">
+                <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-lg">×</button>
+            </div>
 
-<div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-6"></div>
-
-<!-- INPUT -->
-<div class="border-t bg-white p-3">
-  <div id="status" class="flex gap-2 mb-2"></div>
-
-  <div id="imgPreviewWrap" class="hidden mb-2 relative inline-block">
-    <img id="imgPreview" class="h-16 rounded">
-    <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">×</button>
-  </div>
-
-  <div class="flex gap-2 bg-gray-100 rounded-2xl p-2 items-end">
-    <label class="cursor-pointer p-2">
-      <i class="fa fa-camera"></i>
-      <input hidden type="file" accept="image/*" onchange="loadImg(event)">
-    </label>
-
-    <button onclick="removeBG()" class="p-2" title="Remove Background">
-      <i class="fa fa-magic"></i>
-    </button>
-
-    <textarea id="input" rows="1"
-      class="flex-1 bg-transparent resize-none outline-none"
-      placeholder="বাংলাদেশ সম্পর্কিত যেকোনো প্রশ্ন করুন..."></textarea>
-
-    <button onclick="send()" class="bg-green-700 text-white w-11 h-11 rounded-xl">
-      <i class="fa fa-paper-plane"></i>
-    </button>
-  </div>
-</div>
-
-</main>
+            <div class="max-w-4xl mx-auto flex gap-2 bg-gray-100 rounded-2xl p-2 items-end border focus-within:border-green-500 transition-all">
+                <label class="cursor-pointer p-3 text-gray-500 hover:text-green-700">
+                    <i class="fa fa-camera text-xl"></i>
+                    <input type="file" hidden accept="image/*" onchange="handleImage(event)">
+                </label>
+                <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40" placeholder="বাংলাদেশ সম্পর্কিত যেকোনো প্রশ্ন করুন..."></textarea>
+                <button id="sendBtn" onclick="handleSend()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50">
+                    <i class="fa fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </main>
 
 <script>
-const API="https://ai.obaydul2009-info.workers.dev";
-const AUTH="my_secure_handshake_key";
+    const API_URL = "https://ai.obaydul2009-info.workers.dev";
+    const AUTH_KEY = "my_secure_handshake_key";
+    
+    let chats = JSON.parse(localStorage.getItem("bd_chats") || "{}");
+    let currentId = localStorage.getItem("active_chat") || null;
+    let selectedImg = null;
 
-let chats=JSON.parse(localStorage.getItem("bdChats")||"{}");
-let current=null;
-let imgBase64=null;
-
-const box=q("chatBox"),input=q("input");
-
-function q(id){return document.getElementById(id)}
-
-function newChat(){
-  current="chat_"+Date.now();
-  chats[current]={title:"নতুন কথোপকথন",msgs:[]};
-  save();render();
-}
-
-function render(){
-  q("chatList").innerHTML="";
-  Object.keys(chats).reverse().forEach(id=>{
-    const d=document.createElement("div");
-    d.className="p-2 flex justify-between items-center hover:bg-green-50";
-
-    const t=document.createElement("span");
-    t.className="cursor-pointer truncate";
-    t.innerText=chats[id].title;
-    t.onclick=()=>{current=id;render()};
-
-    const del=document.createElement("button");
-    del.innerHTML="🗑️";
-    del.onclick=()=>{
-      if(confirm("এই কথোপকথন মুছে ফেলবেন?")){
-        delete chats[id];
-        if(current===id) newChat();
+    function createNewChat() {
+        const id = "chat_" + Date.now();
+        chats[id] = { title: "নতুন কথোপকথন", msgs: [] };
+        currentId = id;
         save(); render();
-      }
-    };
-
-    d.append(t,del);
-    q("chatList").appendChild(d);
-  });
-
-  box.innerHTML="";
-  chats[current]?.msgs.forEach(m=>draw(m.role,m.text,m.img));
-  q("chatTitle").innerText=chats[current]?.title||"";
-  box.scrollTop=box.scrollHeight;
-}
-
-function draw(role,text,img){
-  const w=document.createElement("div");
-  w.className="flex "+(role==="user"?"justify-end":"");
-  w.innerHTML=`
-  <div class="${role==="user"?"user":"ai"} max-w-2xl p-4">
-    ${img?`<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded">`:""}
-    <div class="content">${role==="user"?esc(text):"প্রসেস হচ্ছে..."}</div>
-  </div>`;
-  box.appendChild(w);
-  return w.querySelector(".content");
-}
-
-async function send(){
-  const t=input.value.trim();
-  if(!t && !imgBase64) return;
-
-  chats[current].msgs.push({role:"user",text:t,img:imgBase64});
-  draw("user",t,imgBase64);
-
-  input.value=""; clearImg();
-
-  const aiBox=draw("assistant","");
-  let full="",buf="";
-
-  const res=await fetch(API,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "X-Custom-Auth":AUTH
-    },
-    body:JSON.stringify({
-      prompt:t,
-      image:imgBase64,
-      history:chats[current].msgs.slice(-8)
-    })
-  });
-
-  const reader=res.body.getReader();
-  const dec=new TextDecoder();
-
-  while(true){
-    const {value,done}=await reader.read();
-    if(done)break;
-    buf+=dec.decode(value,{stream:true});
-    buf.split("\n\n").slice(0,-1).forEach(l=>{
-      if(l.startsWith("data:")){
-        const d=JSON.parse(l.slice(5));
-        if(d.type==="text"){
-          full+=d.content;
-          aiBox.innerHTML=marked.parse(full)+'<span class="cursor"></span>';
-        }
-        if(d.type==="status") chip(d.content);
-      }
-    });
-  }
-
-  aiBox.innerHTML=marked.parse(full);
-  chats[current].msgs.push({role:"assistant",text:full});
-  save(); Prism.highlightAll();
-}
-
-function chip(t){
-  const d=document.createElement("div");
-  d.className="bg-green-100 px-2 py-1 rounded text-xs";
-  d.innerText=t;
-  q("status").appendChild(d);
-  setTimeout(()=>d.remove(),4000);
-}
-
-function loadImg(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=x=>{
-    imgBase64=x.target.result.split(",")[1];
-    q("imgPreview").src=x.target.result;
-    q("imgPreviewWrap").classList.remove("hidden");
-  }
-  r.readAsDataURL(f);
-}
-
-function removeBG(){
-  if(!imgBase64) return alert("প্রথমে ছবি দিন");
-  const img=new Image();
-  img.src="data:image/jpeg;base64,"+imgBase64;
-  img.onload=()=>{
-    const c=document.createElement("canvas");
-    c.width=img.width; c.height=img.height;
-    const ctx=c.getContext("2d");
-    ctx.drawImage(img,0,0);
-    const d=ctx.getImageData(0,0,c.width,c.height);
-    for(let i=0;i<d.data.length;i+=4){
-      if(d.data[i]>240 && d.data[i+1]>240 && d.data[i+2]>240){
-        d.data[i+3]=0;
-      }
     }
-    ctx.putImageData(d,0,0);
-    imgBase64=c.toDataURL("image/png").split(",")[1];
-    q("imgPreview").src=c.toDataURL("image/png");
-  }
-}
 
-function clearImg(){
-  imgBase64=null;
-  q("imgPreviewWrap").classList.add("hidden");
-}
+    function render() {
+        localStorage.setItem("active_chat", currentId);
+        const list = document.getElementById("chatList");
+        list.innerHTML = "";
+        Object.keys(chats).reverse().forEach(id => {
+            const btn = document.createElement("div");
+            btn.className = `p-3 mb-1 rounded-lg cursor-pointer flex justify-between items-center group ${id === currentId ? 'bg-green-100 text-green-800 font-bold' : 'hover:bg-gray-100'}`;
+            btn.innerHTML = `<span class="truncate w-48" onclick="selectChat('${id}')">${chats[id].title}</span>
+                             <i class="fa fa-trash text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100" onclick="deleteChat('${id}')"></i>`;
+            list.appendChild(btn);
+        });
 
-function save(){
-  localStorage.setItem("bdChats",JSON.stringify(chats));
-}
+        const box = document.getElementById("chatBox");
+        box.innerHTML = "";
+        if (chats[currentId]) {
+            chats[currentId].msgs.forEach(m => appendUI(m.role, m.text, m.img));
+            document.getElementById("chatTitle").innerText = chats[currentId].title;
+        }
+        box.scrollTop = box.scrollHeight;
+    }
 
-function esc(t){
-  return t.replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
-}
+    function selectChat(id) { currentId = id; render(); }
+    function deleteChat(id) { if(confirm("মুছবেন?")) { delete chats[id]; if(currentId===id) createNewChat(); save(); render(); } }
 
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    send();
-  }
-});
+    function appendUI(role, text, img) {
+        const box = document.getElementById("chatBox");
+        const div = document.createElement("div");
+        div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+        div.innerHTML = `
+            <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[85%] p-4 shadow-sm">
+                ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded-lg max-h-60">` : ""}
+                <div class="markdown-body">${marked.parse(text)}</div>
+            </div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+        return div.querySelector(".markdown-body");
+    }
 
-marked.setOptions({breaks:true});
-newChat();
+    async function handleSend() {
+        const input = document.getElementById("userInput");
+        const text = input.value.trim();
+        if (!text && !selectedImg) return;
+
+        const currentImg = selectedImg;
+        chats[currentId].msgs.push({ role: "user", text, img: currentImg });
+        if(chats[currentId].title === "নতুন কথোপকথন" && text) chats[currentId].title = text.substring(0, 20);
+        
+        render();
+        input.value = ""; clearImg();
+        document.getElementById("sendBtn").disabled = true;
+
+        const aiPlaceholder = appendUI("assistant", "প্রসেস হচ্ছে...");
+        let fullRes = "";
+
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-Custom-Auth": AUTH_KEY },
+                body: JSON.stringify({ prompt: text, image: currentImg, history: chats[currentId].msgs.slice(-10) })
+            });
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                
+                let lines = buffer.split("\n");
+                buffer = lines.pop(); // শেষ অসম্পূর্ণ লাইন বাফারে রাখুন
+
+                for (let line of lines) {
+                    if (line.startsWith("data: ")) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.type === "text") {
+                                fullRes += data.content;
+                                aiPlaceholder.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
+                            }
+                            if (data.type === "status") showStatus(data.content);
+                        } catch (e) {}
+                    }
+                }
+                document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+            }
+
+            aiPlaceholder.innerHTML = marked.parse(fullRes);
+            chats[currentId].msgs.push({ role: "assistant", text: fullRes });
+            save(); Prism.highlightAll();
+        } catch (e) {
+            aiPlaceholder.innerHTML = "দুঃখিত, কানেকশন এরর হয়েছে।";
+        } finally {
+            document.getElementById("sendBtn").disabled = false;
+        }
+    }
+
+    function handleImage(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const MAX_W = 800;
+                const scale = MAX_W / img.width;
+                canvas.width = MAX_W;
+                canvas.height = img.height * scale;
+                canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+                selectedImg = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
+                document.getElementById("imgPreview").src = canvas.toDataURL("image/jpeg");
+                document.getElementById("imgPreviewWrap").classList.remove("hidden");
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function showStatus(t) {
+        const s = document.getElementById("statusArea");
+        const div = document.createElement("div");
+        div.className = "text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded animate-pulse";
+        div.innerText = t;
+        s.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    function clearImg() { selectedImg = null; document.getElementById("imgPreviewWrap").classList.add("hidden"); }
+    function save() { localStorage.setItem("bd_chats", JSON.stringify(chats)); }
+
+    document.getElementById("userInput").addEventListener("keydown", e => {
+        if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+
+    if(!currentId || !chats[currentId]) createNewChat(); else render();
 </script>
 </body>
 </html>

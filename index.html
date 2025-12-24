@@ -1,218 +1,222 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BD4LAND Master AI | Pro 2025</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-    :root { --bd: #006a4e; }
-    body { font-family: 'Hind Siliguri', sans-serif; background: #f9fafb; overflow: hidden; }
-    .ai-bubble { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px 18px 18px 18px; }
-    .user-bubble { background: var(--bd); color: #fff; border-radius: 18px 18px 4px 18px; }
-    .cursor { display: inline-block; width: 3px; height: 16px; background: var(--bd); animation: blink 1s infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-    .active-chat { background: #f0fdf4; border-left: 4px solid var(--bd); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD4LAND AI | Pro 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
+        :root { --bd: #006a4e; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f9fafb; overflow: hidden; }
+        .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; transition: 0.3s; z-index: 50; }
+        @media (max-width: 768px) { .sidebar { position: absolute; left: -280px; height: 100%; } .sidebar.active { left: 0; } }
+        .ai-bubble { background: #fff; border: 1px solid #e5e7eb; border-radius: 2px 18px 18px 18px; }
+        .user-bubble { background: var(--bd); color: #fff; border-radius: 18px 18px 2px 18px; }
+        .active-chat { background: #f0fdf4; border-left: 4px solid var(--bd); font-weight: bold; color: var(--bd); }
+        .cursor { display: inline-block; width: 3px; height: 16px; background: var(--bd); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
 </head>
 <body class="flex h-screen text-gray-900">
 
 <!-- Sidebar -->
-<aside class="w-72 bg-white border-r flex flex-col hidden md:flex">
-  <div class="p-4 border-b">
-    <button onclick="newChat()" class="w-full border-2 border-dashed border-gray-300 rounded-xl py-2 font-bold hover:border-green-600 transition">
-      <i class="fa fa-plus"></i> নতুন চ্যাট
-    </button>
-  </div>
-  <div id="chatList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-  <div class="p-4 border-t text-[10px] font-bold text-gray-400">BD4LAND AI V3.5 • 2025</div>
+<aside id="sidebar" class="sidebar flex flex-col">
+    <div class="p-4 border-b">
+        <button onclick="newChat()" class="w-full bg-green-700 text-white rounded-xl py-2.5 font-bold hover:bg-green-800 transition shadow-md">
+            <i class="fa fa-plus mr-1"></i> নতুন চ্যাট
+        </button>
+    </div>
+    <div id="chatList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+    <div class="p-4 border-t text-[10px] font-bold text-gray-400 uppercase">BD4LAND MASTER V3.5 • 2025</div>
 </aside>
 
 <!-- Main -->
-<main class="flex-1 flex flex-col relative">
-  <header class="h-14 bg-white border-b flex items-center justify-between px-6">
-    <h2 id="chatTitle" class="font-bold text-gray-700 truncate max-w-xs">নতুন কথোপকথন</h2>
-    <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded">LIVE ENGINE</span>
-  </header>
+<main class="flex-1 flex flex-col relative bg-gray-50">
+    <header class="h-14 bg-white border-b flex items-center justify-between px-6 shadow-sm">
+        <div class="flex items-center gap-3">
+            <button onclick="document.getElementById('sidebar').classList.toggle('active')" class="md:hidden text-gray-500"><i class="fa fa-bars"></i></button>
+            <h2 id="chatTitle" class="font-bold text-gray-700 truncate max-w-[180px] md:max-w-md">নতুন কথোপকথন</h2>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full border">
+            <i class="fa fa-circle text-[6px]"></i> 2025 LIVE
+        </div>
+    </header>
 
-  <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-24 lg:px-48 space-y-6 bg-gray-50"></div>
+    <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-32 lg:px-64 space-y-6"></div>
 
-  <!-- Input -->
-  <div class="p-4 bg-white border-t">
-    <div id="status" class="flex gap-2 mb-2"></div>
-    <div id="imgPreviewWrap" class="hidden mb-2 relative inline-block">
-      <img id="imgPreview" class="h-16 rounded border">
-      <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">×</button>
+    <div class="p-4 bg-white border-t">
+        <div id="status" class="flex gap-2 mb-2"></div>
+        <div id="imgWrap" class="hidden mb-2 relative inline-block">
+            <img id="imgPreview" class="h-20 rounded border-2 border-green-500 shadow-md">
+            <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-lg">×</button>
+        </div>
+        <div class="max-w-4xl mx-auto flex gap-2 bg-gray-100 rounded-2xl p-2 items-end border focus-within:bg-white focus-within:border-green-600 transition-all shadow-lg">
+            <label class="cursor-pointer p-3 text-gray-400 hover:text-green-600"><i class="fa fa-image text-xl"></i><input type="file" hidden accept="image/*" onchange="handleImg(event)"></label>
+            <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40" placeholder="জিজ্ঞাসা করুন..."></textarea>
+            <button id="sendBtn" onclick="handleSend()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50"><i class="fa fa-paper-plane"></i></button>
+        </div>
     </div>
-    <div class="max-w-4xl mx-auto flex gap-2 bg-gray-100 rounded-2xl p-2 items-end border focus-within:bg-white focus-within:border-green-600 transition-all shadow-md">
-      <label class="cursor-pointer p-3 text-gray-500 hover:text-green-700">
-        <i class="fa fa-camera text-xl"></i>
-        <input type="file" hidden accept="image/*" onchange="loadImg(event)">
-      </label>
-      <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40" placeholder="জিজ্ঞাসা করুন..."></textarea>
-      <button id="sendBtn" onclick="send()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50">
-        <i class="fa fa-paper-plane"></i>
-      </button>
-    </div>
-  </div>
 </main>
 
 <script>
 const API = "https://ai.obaydul2009-info.workers.dev";
 const AUTH = "my_secure_handshake_key";
 
-let chats = JSON.parse(localStorage.getItem("bd_chats") || "{}");
-let activeId = localStorage.getItem("active_id") || null;
-let imgData = null;
+let chats = JSON.parse(localStorage.getItem("bd_chats_v4") || "{}");
+let activeId = localStorage.getItem("active_id_v4");
+let selectedImg = null;
+
+function save() { localStorage.setItem("bd_chats_v4", JSON.stringify(chats)); localStorage.setItem("active_id_v4", activeId); }
 
 function newChat() {
-  activeId = "chat_" + Date.now();
-  chats[activeId] = { title: "নতুন কথোপকথন", msgs: [] };
-  save(); render();
+    activeId = "chat_" + Date.now();
+    chats[activeId] = { title: "নতুন কথোপকথন", msgs: [] };
+    save(); render();
+}
+
+function switchChat(id) { activeId = id; save(); render(); }
+
+function deleteChat(id) {
+    if(confirm("এই চ্যাটটি মুছে ফেলবেন?")) {
+        delete chats[id];
+        if(activeId === id) activeId = Object.keys(chats)[0] || null;
+        if(!activeId) newChat(); else { save(); render(); }
+    }
 }
 
 function render() {
-  localStorage.setItem("active_id", activeId);
-  const list = document.getElementById("chatList");
-  list.innerHTML = "";
-  Object.keys(chats).reverse().forEach(id => {
-    const div = document.createElement("div");
-    div.className = `p-3 rounded-lg cursor-pointer flex justify-between items-center group ${id === activeId ? 'active-chat' : 'hover:bg-gray-100'}`;
-    div.innerHTML = `<span class="truncate w-48" onclick="switchChat('${id}')">${chats[id].title}</span>
-                     <i class="fa fa-trash text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100" onclick="deleteChat('${id}')"></i>`;
-    list.appendChild(div);
-  });
-
-  const box = document.getElementById("chatBox");
-  box.innerHTML = "";
-  if (chats[activeId]) {
-    chats[activeId].msgs.forEach(m => drawUI(m.role, m.text, m.img));
-    document.getElementById("chatTitle").innerText = chats[activeId].title;
-  }
-  box.scrollTop = box.scrollHeight;
-}
-
-function switchChat(id) { activeId = id; render(); }
-function deleteChat(id) { if(confirm("মুছবেন?")) { delete chats[id]; if(activeId===id) newChat(); save(); render(); } }
-
-function drawUI(role, text, img) {
-  const box = document.getElementById("chatBox");
-  const div = document.createElement("div");
-  div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-  div.innerHTML = `
-    <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[85%] p-4 shadow-sm">
-      ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded-lg max-h-60">` : ""}
-      <div class="content">${role === 'user' ? esc(text) : (text ? marked.parse(text) : "...")}</div>
-    </div>`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  return div.querySelector(".content");
-}
-
-async function send() {
-  const input = document.getElementById("userInput");
-  const t = input.value.trim();
-  if (!t && !imgData) return;
-
-  const currentImg = imgData;
-  chats[activeId].msgs.push({ role: "user", text: t, img: currentImg });
-  if (chats[activeId].title === "নতুন কথোপকথন" && t) chats[activeId].title = t.substring(0, 20);
-  
-  render();
-  input.value = ""; clearImg();
-  document.getElementById("sendBtn").disabled = true;
-
-  const aiBox = drawUI("assistant", "");
-  let fullRes = "";
-
-  try {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Custom-Auth": AUTH },
-      body: JSON.stringify({ prompt: t, image: currentImg, history: chats[activeId].msgs.slice(-10) })
+    const list = document.getElementById("chatList"); list.innerHTML = "";
+    Object.keys(chats).reverse().forEach(id => {
+        const div = document.createElement("div");
+        div.className = `p-3 rounded-xl cursor-pointer flex justify-between items-center group transition ${id === activeId ? 'active-chat shadow-sm' : 'hover:bg-gray-100 text-gray-500'}`;
+        div.innerHTML = `<span class="truncate flex-1" onclick="switchChat('${id}')">${chats[id].title}</span>
+                         <i class="fa fa-trash-alt text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" onclick="deleteChat('${id}')"></i>`;
+        list.appendChild(div);
     });
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = ""; // ভাঙা ডাটা জোড়া দেওয়ার জন্য বাফার
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      
-      buffer += decoder.decode(value, { stream: true });
-      let lines = buffer.split("\n");
-      buffer = lines.pop(); // শেষ অসম্পূর্ণ লাইনটি বাফারে রেখে দিন
-
-      for (let line of lines) {
-        let trimmedLine = line.trim();
-        if (trimmedLine.startsWith("data: ")) {
-          try {
-            const data = JSON.parse(trimmedLine.substring(6));
-            if (data.type === "text") {
-              fullRes += data.content;
-              aiBox.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
-            }
-            if (data.type === "status") showStatus(data.content);
-            if (data.type === "error") throw new Error(data.content);
-          } catch (e) {
-            console.error("JSON parsing error", e);
-          }
-        }
-      }
-      document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+    const box = document.getElementById("chatBox"); box.innerHTML = "";
+    if(chats[activeId]) {
+        chats[activeId].msgs.forEach(m => appendUI(m.role, m.text, m.img));
+        document.getElementById("chatTitle").innerText = chats[activeId].title;
     }
-
-    aiBox.innerHTML = marked.parse(fullRes);
-    chats[activeId].msgs.push({ role: "assistant", text: fullRes });
-    save();
-  } catch (e) {
-    aiBox.innerHTML = `<span class="text-red-500">Error: ${e.message}</span>`;
-  } finally {
-    document.getElementById("sendBtn").disabled = false;
-  }
+    box.scrollTop = box.scrollHeight;
 }
 
-function loadImg(e) {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      const max = 800; const s = max / Math.max(img.width, img.height);
-      c.width = img.width * s; c.height = img.height * s;
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      imgData = c.toDataURL("image/jpeg", 0.7).split(",")[1];
-      document.getElementById("imgPreview").src = c.toDataURL("image/jpeg");
-      document.getElementById("imgPreviewWrap").classList.remove("hidden");
+function appendUI(role, text, img) {
+    const box = document.getElementById("chatBox");
+    const div = document.createElement("div");
+    div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+    div.innerHTML = `
+        <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[85%] md:max-w-2xl p-4 shadow-sm">
+            ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-2 rounded-lg max-h-64 shadow-md">` : ""}
+            <div class="markdown-body text-sm leading-relaxed">${text ? marked.parse(text) : '<span class="animate-pulse">...</span>'}</div>
+        </div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div.querySelector(".markdown-body");
+}
+
+async function handleSend() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
+    if(!text && !selectedImg) return;
+
+    const currentImg = selectedImg;
+    chats[activeId].msgs.push({ role: "user", text, img: currentImg });
+    if(chats[activeId].title === "নতুন কথোপকথন" && text) chats[activeId].title = text.substring(0, 30);
+    
+    render();
+    input.value = ""; clearImg();
+    document.getElementById("sendBtn").disabled = true;
+
+    const aiPlaceholder = appendUI("assistant", "");
+    let fullRes = "";
+
+    try {
+        const res = await fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Custom-Auth": AUTH },
+            body: JSON.stringify({ prompt: text, image: currentImg, history: chats[activeId].msgs.slice(-10) })
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            let lines = buffer.split("\n");
+            buffer = lines.pop(); // অসম্পূর্ণ লাইন বাফারে রেখে দিন
+
+            for (let line of lines) {
+                let trimmed = line.trim();
+                if (trimmed.startsWith("data: ")) {
+                    try {
+                        const data = JSON.parse(trimmed.substring(6));
+                        if (data.type === "text") {
+                            fullRes += data.content;
+                            aiPlaceholder.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
+                        }
+                        if (data.type === "status") showStatus(data.content);
+                        if (data.type === "error") throw new Error(data.content);
+                    } catch (e) { console.error("JSON Error", e); }
+                }
+            }
+            document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+        }
+
+        aiPlaceholder.innerHTML = marked.parse(fullRes);
+        chats[activeId].msgs.push({ role: "assistant", text: fullRes });
+        save(); Prism.highlightAll();
+    } catch (e) {
+        aiPlaceholder.innerHTML = `<span class="text-red-500">Error: ${e.message}</span>`;
+    } finally {
+        document.getElementById("sendBtn").disabled = false;
+    }
+}
+
+function handleImg(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+            const c = document.createElement("canvas");
+            const max = 800; const s = max / Math.max(img.width, img.height);
+            c.width = img.width * s; c.height = img.height * s;
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            selectedImg = c.toDataURL("image/jpeg", 0.7).split(",")[1];
+            document.getElementById("imgPreview").src = c.toDataURL("image/jpeg");
+            document.getElementById("imgWrap").classList.remove("hidden");
+        };
+        img.src = ev.target.result;
     };
-    img.src = ev.target.result;
-  };
-  r.readAsDataURL(f);
+    r.readAsDataURL(file);
 }
 
 function showStatus(t) {
-  const s = document.getElementById("status");
-  const d = document.createElement("div");
-  d.className = "text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded animate-pulse";
-  d.innerText = t;
-  s.appendChild(d);
-  setTimeout(() => d.remove(), 4000);
+    const s = document.getElementById("status");
+    const d = document.createElement("div");
+    d.className = "text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded animate-pulse border border-blue-200";
+    d.innerText = t; s.appendChild(d);
+    setTimeout(() => d.remove(), 4000);
 }
 
-function clearImg() { imgData = null; document.getElementById("imgPreviewWrap").classList.add("hidden"); }
-function save() { localStorage.setItem("bd_chats", JSON.stringify(chats)); }
-function esc(t) { return t.replace(/[&<>]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[m])); }
+function clearImg() { selectedImg = null; document.getElementById("imgWrap").classList.add("hidden"); }
 
 document.getElementById("userInput").addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
 });
 
-if (!activeId || !chats[activeId]) newChat(); else render();
+if(!activeId || !chats[activeId]) newChat(); else render();
 marked.setOptions({ breaks: true });
 </script>
 </body>

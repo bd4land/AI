@@ -1,225 +1,395 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BD4LAND AI | Pro 2025</title>
+    <title>Google Gemini Style AI - Ultimate Edition</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-        :root { --bd: #006a4e; }
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f9fafb; overflow: hidden; }
-        .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; transition: 0.3s; z-index: 50; }
-        @media (max-width: 768px) { .sidebar { position: absolute; left: -280px; height: 100%; } .sidebar.active { left: 0; } }
-        .ai-bubble { background: #fff; border: 1px solid #e5e7eb; border-radius: 2px 18px 18px 18px; }
-        .user-bubble { background: var(--bd); color: #fff; border-radius: 18px 18px 2px 18px; }
-        .active-chat { background: #f0fdf4; border-left: 4px solid var(--bd); font-weight: bold; color: var(--bd); }
-        .cursor { display: inline-block; width: 3px; height: 16px; background: var(--bd); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-    </style>
-</head>
-<body class="flex h-screen text-gray-900">
-
-<aside id="sidebar" class="sidebar flex flex-col shadow-lg">
-    <div class="p-4 border-b bg-gray-50">
-        <button onclick="newChat()" class="w-full bg-white border border-gray-300 rounded-xl py-2.5 font-bold text-gray-700 hover:border-green-600 hover:text-green-600 transition flex items-center justify-center gap-2 shadow-sm">
-            <i class="fa fa-plus text-xs"></i> নতুন চ্যাট শুরু করুন
-        </button>
-    </div>
-    <div id="chatList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-    <div class="p-4 border-t text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">BD4LAND MASTER V3.5 • 2025</div>
-</aside>
-
-<main class="flex-1 flex flex-col relative bg-[#f9fafb]">
-    <header class="h-14 bg-white/80 backdrop-blur-md border-b flex items-center justify-between px-6 shadow-sm">
-        <div class="flex items-center gap-3">
-            <button onclick="document.getElementById('sidebar').classList.toggle('active')" class="md:hidden text-gray-500 p-2 hover:bg-gray-100 rounded-lg"><i class="fa fa-bars"></i></button>
-            <h2 id="chatTitle" class="font-bold text-gray-700 truncate max-w-[180px] md:max-w-md">নতুন কথোপকথন</h2>
-        </div>
-        <div class="flex items-center gap-2 text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
-            <i class="fa fa-circle text-[6px] animate-pulse"></i> 2025 LIVE ENGINE
-        </div>
-    </header>
-
-    <div id="chatBox" class="flex-1 overflow-y-auto p-4 md:px-32 lg:px-64 space-y-6"></div>
-
-    <div class="p-4 md:px-32 lg:px-64 bg-white border-t">
-        <div id="status" class="flex flex-wrap gap-2 mb-2"></div>
-        <div id="imgWrap" class="hidden mb-3 relative inline-block">
-            <img id="imgPreview" class="h-24 rounded-lg border-2 border-green-500 shadow-lg">
-            <button onclick="clearImg()" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-xl hover:bg-red-700">×</button>
-        </div>
-        <div class="max-w-4xl mx-auto flex gap-2 bg-gray-50 rounded-2xl p-2 items-end border border-gray-200 focus-within:bg-white focus-within:border-green-600 transition-all shadow-md">
-            <label class="cursor-pointer p-3 text-gray-400 hover:text-green-600"><i class="fa fa-camera text-xl"></i><input type="file" id="image-input" hidden accept="image/*" onchange="handleImg(event)"></label>
-            <textarea id="userInput" rows="1" class="flex-1 bg-transparent p-3 outline-none resize-none max-h-40 text-gray-700 font-medium" placeholder="আসসালামু আলাইকুম..."></textarea>
-            <button id="sendBtn" onclick="handleSend()" class="bg-green-700 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-green-800 transition disabled:opacity-50"><i class="fa fa-paper-plane"></i></button>
-        </div>
-    </div>
-</main>
-
-<script>
-const API = "https://ai.obaydul2009-info.workers.dev";
-const AUTH = "my_secure_handshake_key";
-
-let chats = JSON.parse(localStorage.getItem("bd_chats_v4") || "{}");
-let activeId = localStorage.getItem("active_id_v4");
-let selectedImg = null;
-
-function save() { localStorage.setItem("bd_chats_v4", JSON.stringify(chats)); localStorage.setItem("active_id_v4", activeId); }
-
-function newChat() {
-    activeId = "chat_" + Date.now();
-    chats[activeId] = { title: "নতুন কথোপকথন", msgs: [] };
-    save(); render();
-}
-
-function switchChat(id) { activeId = id; render(); }
-
-function deleteChat(id) {
-    if(confirm("এই চ্যাটটি কি মুছে ফেলবেন?")) {
-        delete chats[id];
-        activeId = Object.keys(chats)[0] || null;
-        if(!activeId) newChat(); else { save(); render(); }
-    }
-}
-
-function render() {
-    const list = document.getElementById("chatList"); list.innerHTML = "";
-    Object.keys(chats).reverse().forEach(id => {
-        const div = document.createElement("div");
-        div.className = `p-3 rounded-xl cursor-pointer flex justify-between items-center group transition ${id === activeId ? 'active-chat shadow-sm' : 'hover:bg-gray-100 text-gray-500'}`;
-        div.innerHTML = `<span class="truncate flex-1" onclick="switchChat('${id}')">${chats[id].title}</span>
-                         <i class="fa fa-trash-alt text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" onclick="deleteChat('${id}')"></i>`;
-        list.appendChild(div);
-    });
-
-    const box = document.getElementById("chatBox"); box.innerHTML = "";
-    if(chats[activeId]) {
-        chats[activeId].msgs.forEach(m => appendUI(m.role, m.text, m.img));
-        document.getElementById("chatTitle").innerText = chats[activeId].title;
-    }
-    box.scrollTop = box.scrollHeight;
-}
-
-function appendUI(role, text, img) {
-    const box = document.getElementById("chatBox");
-    const div = document.createElement("div");
-    div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-    div.innerHTML = `
-        <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[90%] md:max-w-2xl p-4 shadow-sm overflow-hidden">
-            ${img ? `<img src="data:image/jpeg;base64,${img}" class="mb-3 rounded-lg max-h-64 shadow-md border-2 border-white">` : ""}
-            <div class="markdown-body text-sm leading-relaxed break-words">${text ? marked.parse(text) : '<span class="animate-pulse">...</span>'}</div>
-        </div>`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-    return div.querySelector(".markdown-body");
-}
-
-async function handleSend() {
-    const input = document.getElementById("userInput");
-    const text = input.value.trim();
-    if(!text && !selectedImg) return;
-
-    const currentImg = selectedImg;
-    chats[activeId].msgs.push({ role: "user", text, img: currentImg });
-    if(chats[activeId].title === "নতুন কথোপকথন" && text) chats[activeId].title = text.substring(0, 25);
     
-    render();
-    input.value = ""; clearImg();
-    document.getElementById("sendBtn").disabled = true;
+    <!-- Puter.js -->
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    const aiPlaceholder = appendUI("assistant", "");
-    let fullRes = "";
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    try {
-        const res = await fetch(API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-Custom-Auth": AUTH },
-            body: JSON.stringify({ prompt: text, image: currentImg, history: chats[activeId].msgs.slice(-8) })
-        });
-
-        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            buffer += decoder.decode(value, { stream: true });
-            let lines = buffer.split("\n");
-            buffer = lines.pop(); 
-
-            for (let line of lines) {
-                let trimmed = line.trim();
-                if (trimmed.startsWith("data: ")) {
-                    try {
-                        const data = JSON.parse(trimmed.substring(6));
-                        if (data.type === "text") {
-                            fullRes += data.content;
-                            aiPlaceholder.innerHTML = marked.parse(fullRes) + '<span class="cursor"></span>';
-                        }
-                        if (data.type === "status") showStatus(data.content);
-                        if (data.type === "error") throw new Error(data.content);
-                    } catch (e) { console.error("Parse Error", e); }
-                }
-            }
-            document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background-color: #131314;
+            color: #e3e3e3;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        aiPlaceholder.innerHTML = marked.parse(fullRes);
-        chats[activeId].msgs.push({ role: "assistant", text: fullRes });
-        save();
-    } catch (e) {
-        aiPlaceholder.innerHTML = `<span class="text-red-500 font-mono text-xs">System Error: ${e.message}. Please retry.</span>`;
-    } finally {
-        document.getElementById("sendBtn").disabled = false;
-    }
-}
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #444746; border-radius: 10px; }
 
-function handleImg(e) {
-    const file = e.target.files[0]; if(!file) return;
-    showStatus("📸 ছবি প্রস্তুত হচ্ছে...");
-    const r = new FileReader();
-    r.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const max_dim = 600;
-            let w = img.width, h = img.height;
-            if (w > h) { if (w > max_dim) { h *= max_dim / w; w = max_dim; } } 
-            else { if (h > max_dim) { w *= max_dim / h; h = max_dim; } }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-            selectedImg = canvas.toDataURL("image/jpeg", 0.5).split(",")[1];
-            document.getElementById("imgPreview").src = canvas.toDataURL("image/jpeg");
-            document.getElementById("imgWrap").classList.remove("hidden");
-        };
-        img.src = ev.target.result;
-    };
-    r.readAsDataURL(file);
-}
+        .gemini-gradient {
+            background: linear-gradient(74deg, #4285f4 0, #9b72cb 9%, #d96570 20%, #d96570 24%, #9b72cb 35%, #4285f4 44%, #9b72cb 50%, #d96570 56%, #131314 75%, #131314 100%);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-function showStatus(t) {
-    const s = document.getElementById("status");
-    const d = document.createElement("div");
-    d.className = "text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200 animate-pulse";
-    d.innerText = t; s.appendChild(d);
-    setTimeout(() => d.remove(), 4000);
-}
+        textarea { resize: none; overflow-y: hidden; }
+        textarea:focus { outline: none; }
 
-function clearImg() { selectedImg = null; document.getElementById("imgWrap").classList.add("hidden"); document.getElementById("image-input").value = ""; }
+        /* AI Markdown Styles */
+        .ai-response { font-size: 1rem; line-height: 1.6; }
+        .ai-response p { margin-bottom: 1rem; }
+        .ai-response h1, .ai-response h2, .ai-response h3 { color: #fff; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .ai-response ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-response ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-response pre { background: #1e1e20; padding: 1rem; border-radius: 12px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #444746; }
+        .ai-response code { font-family: monospace; background: #282a2c; padding: 2px 6px; border-radius: 6px; color: #a8c7fa; }
+        .ai-response pre code { background: transparent; padding: 0; color: #e3e3e3; }
+        .ai-response a { color: #8ab4f8; text-decoration: underline; }
 
-document.getElementById("userInput").addEventListener("keydown", e => {
-    if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-});
+        /* Blinking Cursor for text stream */
+        .blinking-cursor::after {
+            content: '⬤';
+            font-size: 10px;
+            animation: blink 1s infinite;
+            margin-left: 5px;
+            color: #a8c7fa;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-if(!activeId || !chats[activeId]) newChat(); else render();
-marked.setOptions({ breaks: true });
-</script>
+        .mode-chip.active { background-color: #a8c7fa; color: #041e49; font-weight: 500; }
+        
+        /* Shimmer Effect for Image Loading */
+        .shimmer {
+            background: #282a2c;
+            background-image: linear-gradient(to right, #282a2c 0%, #333537 20%, #282a2c 40%, #282a2c 100%);
+            background-repeat: no-repeat;
+            background-size: 800px 100%; 
+            animation-duration: 1.5s;
+            animation-fill-mode: forwards; 
+            animation-iteration-count: infinite;
+            animation-name: placeholderShimmer;
+            animation-timing-function: linear;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen relative">
+
+    <!-- Top Navigation -->
+    <div class="flex items-center justify-between p-4 bg-[#131314] text-white z-10">
+        <div class="text-xl font-medium tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-sparkles text-[#a8c7fa]"></i> Ultimate AI
+        </div>
+        <button onclick="location.reload()" class="bg-[#1e1f20] hover:bg-[#333537] px-4 py-2 rounded-full text-sm font-medium transition">
+            <i class="fa-solid fa-plus mr-2"></i> New Chat
+        </button>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div id="chatContainer" class="flex-1 overflow-y-auto px-4 pb-48">
+        <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto">
+            <h1 class="text-5xl font-medium mb-4 gemini-gradient">Hello, how can I help?</h1>
+            <p class="text-[#c4c7c5] text-lg mb-8">Upload an image, generate a new one, or just chat!</p>
+        </div>
+    </div>
+
+    <!-- Bottom Input Area -->
+    <div class="absolute bottom-0 left-0 w-full bg-[#131314] bg-opacity-90 backdrop-blur-md pt-2 pb-6 px-4">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Feature Selectors -->
+            <div class="flex flex-wrap gap-2 mb-3 justify-center md:justify-start">
+                <button onclick="setMode('text', this)" class="mode-chip active bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                    <i class="fa-regular fa-comment mr-1"></i> Chat
+                </button>
+                <button onclick="setMode('web', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                    <i class="fa-solid fa-globe mr-1"></i> Web Search
+                </button>
+                <button onclick="setMode('image', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                    <i class="fa-solid fa-palette mr-1"></i> Create Image
+                </button>
+                <button onclick="setMode('tts', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                    <i class="fa-solid fa-volume-high mr-1"></i> Text-to-Speech
+                </button>
+            </div>
+
+            <!-- Main Input Box with Attachment logic -->
+            <div class="relative flex flex-col bg-[#1e1f20] border border-[#444746] rounded-[24px] focus-within:bg-[#282a2c] transition-colors p-2">
+                
+                <!-- Image Preview Section (Hidden default) -->
+                <div id="imagePreviewContainer" class="hidden px-4 pt-3 pb-1 relative inline-block">
+                    <div class="relative w-20 h-20 group">
+                        <img id="imagePreview" src="" alt="Attached" class="w-full h-full object-cover rounded-xl border border-[#444746]">
+                        <button onclick="removeAttachment()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-end w-full">
+                    <!-- File Upload Input (Hidden) -->
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                    
+                    <!-- Upload Button -->
+                    <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-2 w-10 h-10 rounded-full flex items-center justify-center text-[#c4c7c5] hover:bg-[#444746] hover:text-[#a8c7fa] transition" title="Upload Image">
+                        <i class="fa-solid fa-paperclip text-lg"></i>
+                    </button>
+
+                    <!-- Text Area (Supports Paste) -->
+                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-3 py-3 text-base" placeholder="Enter a prompt or paste (Ctrl+V) an image..." oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                    
+                    <!-- Send Button -->
+                    <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-2 w-10 h-10 rounded-full flex items-center justify-center text-[#a8c7fa] hover:bg-[#444746] transition disabled:opacity-50">
+                        <i class="fa-solid fa-paper-plane text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        marked.setOptions({ breaks: true, gfm: true });
+
+        const chatContainer = document.getElementById('chatContainer');
+        const promptInput = document.getElementById('promptInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        let currentMode = 'text';
+        let isGenerating = false;
+        let currentAttachedImageBase64 = null; // Stores the uploaded image
+
+        // --- PASTE EVENT FOR IMAGES (Ctrl + V) ---
+        promptInput.addEventListener('paste', function (e) {
+            if (e.clipboardData.files && e.clipboardData.files.length > 0) {
+                const file = e.clipboardData.files[0];
+                if (file.type.startsWith('image/')) {
+                    e.preventDefault();
+                    processFile(file);
+                }
+            }
+        });
+
+        // --- FILE UPLOAD LOGIC ---
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+            event.target.value = ''; // reset input
+        }
+
+        // Convert File to Base64 and Show Preview
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentAttachedImageBase64 = e.target.result;
+                imagePreview.src = currentAttachedImageBase64;
+                imagePreviewContainer.classList.remove('hidden');
+                
+                // Automatically activate Chat mode (Vision mode) when image is attached
+                setMode('text', document.querySelector('.mode-chip'));
+                promptInput.placeholder = "What do you want to know about this image?";
+                promptInput.focus();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove attached image
+        function removeAttachment() {
+            currentAttachedImageBase64 = null;
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            promptInput.placeholder = "Enter a prompt or paste (Ctrl+V) an image...";
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px';
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                processRequest();
+            }
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        function setMode(mode, element) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-chip').forEach(btn => btn.classList.remove('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium'));
+            element.classList.add('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium');
+
+            const placeholders = {
+                'text': currentAttachedImageBase64 ? 'Ask about the image...' : 'Enter a prompt or paste an image...',
+                'web': 'Search the web for latest info...',
+                'image': 'Describe the image you want to generate...',
+                'tts': 'Type text to generate speech...'
+            };
+            promptInput.placeholder = placeholders[mode];
+        }
+
+        // --- BEAUTIFUL LOADING ANIMATIONS ---
+        function getLoadingAnimation(mode) {
+            if(mode === 'image') {
+                return `
+                <div class="flex flex-col gap-2 p-2">
+                    <div class="flex items-center gap-3 text-[#a8c7fa]">
+                        <i class="fa-solid fa-palette fa-bounce text-xl"></i>
+                        <span class="font-medium">Painting your imagination...</span>
+                    </div>
+                    <div class="w-full max-w-sm h-64 shimmer rounded-xl border border-[#444746] mt-2"></div>
+                </div>`;
+            } else if (mode === 'web') {
+                return `
+                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
+                    <i class="fa-solid fa-globe fa-spin text-xl"></i>
+                    <span class="font-medium">Searching the vast web...</span>
+                </div>`;
+            } else if (mode === 'tts') {
+                return `
+                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
+                    <i class="fa-solid fa-music fa-fade text-xl"></i>
+                    <span class="font-medium">Generating audio waves...</span>
+                </div>`;
+            } else {
+                return `
+                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
+                    <i class="fa-solid fa-brain fa-fade text-xl"></i>
+                    <span class="font-medium animate-pulse">Thinking...</span>
+                </div>`;
+            }
+        }
+
+        function createChatBubble(isUser, text = '') {
+            const wrapper = document.createElement('div');
+            wrapper.className = "max-w-4xl mx-auto w-full mb-6 flex gap-4 px-4";
+            
+            const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold mt-1 ${isUser ? 'bg-[#a8c7fa] text-[#041e49]' : 'bg-gradient-to-r from-[#4285f4] to-[#9b72cb]'}`;
+            avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-sparkles"></i>';
+
+            const contentBox = document.createElement('div');
+            contentBox.className = "flex-1 ai-response min-w-0 flex flex-col justify-center";
+            
+            if(isUser) {
+                if(currentAttachedImageBase64) {
+                    const imgPreview = document.createElement('img');
+                    imgPreview.src = currentAttachedImageBase64;
+                    imgPreview.className = "max-w-[200px] rounded-lg mb-3 border border-[#444746] object-cover";
+                    contentBox.appendChild(imgPreview);
+                }
+                const textSpan = document.createElement('div');
+                textSpan.innerText = text;
+                contentBox.appendChild(textSpan);
+            }
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(contentBox);
+            chatContainer.appendChild(wrapper);
+            return contentBox;
+        }
+
+        // --- MAIN AI PROCESSOR ---
+        async function processRequest() {
+            const prompt = promptInput.value.trim();
+            
+            // Allow sending only image without text, or text without image
+            if (!prompt && !currentAttachedImageBase64 || isGenerating) return;
+
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+            // User UI
+            createChatBubble(true, prompt || "What's in this image?");
+            
+            // Backup image data and clear inputs
+            const imageToSend = currentAttachedImageBase64;
+            removeAttachment(); 
+            promptInput.value = '';
+            promptInput.style.height = 'auto';
+            scrollToBottom();
+
+            // AI UI & Loading Animation
+            const aiContentBox = createChatBubble(false);
+            aiContentBox.innerHTML = getLoadingAnimation(imageToSend ? 'text' : currentMode);
+            
+            isGenerating = true;
+            sendBtn.disabled = true;
+
+            try {
+                // 1. VISION MODE (If user attached an image)
+                if (imageToSend) {
+                    // Vision API format: puter.ai.chat(prompt, base64_image, options)
+                    const response = await puter.ai.chat(prompt || "Analyze this image in detail.", imageToSend, { model: "gpt-5.4-nano" });
+                    aiContentBox.innerHTML = marked.parse(response?.text || response?.message?.content || response);
+                }
+                
+                // 2. TEXT CHAT MODE
+                else if (currentMode === 'text') {
+                    aiContentBox.innerHTML = ''; // clear loading
+                    aiContentBox.classList.add('blinking-cursor');
+                    
+                    const response = await puter.ai.chat(prompt, { model: "gpt-5.4", stream: true });
+                    let fullText = "";
+                    for await (const part of response) {
+                        fullText += (part?.text || part?.message?.content || "");
+                        aiContentBox.innerHTML = marked.parse(fullText);
+                        scrollToBottom();
+                    }
+                }
+                
+                // 3. WEB SEARCH MODE
+                else if (currentMode === 'web') {
+                    const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools: [{ type: "web_search" }] });
+                    const responseText = (typeof response === 'string') ? response : (response?.text || response?.message?.content || JSON.stringify(response));
+                    aiContentBox.innerHTML = marked.parse(responseText);
+                }
+                
+                // 4. IMAGE GENERATION MODE
+                else if (currentMode === 'image') {
+                    const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
+                    
+                    aiContentBox.innerHTML = '';
+                    imgElement.className = "w-full max-w-lg rounded-2xl border border-[#444746] shadow-lg mt-2 transition-opacity duration-1000";
+                    aiContentBox.appendChild(imgElement);
+                }
+                
+                // 5. TEXT TO SPEECH MODE
+                else if (currentMode === 'tts') {
+                    const audioElement = await puter.ai.txt2speech(prompt, { provider: "openai" });
+                    
+                    aiContentBox.innerHTML = `<p class="mb-2 text-[#a8c7fa]"><i class="fa-solid fa-check-circle mr-1"></i> Audio Generated!</p>`;
+                    audioElement.setAttribute("controls", "");
+                    audioElement.className = "w-full max-w-md rounded-full shadow-lg outline-none bg-[#1e1f20]";
+                    aiContentBox.appendChild(audioElement);
+                }
+
+            } catch (error) {
+                aiContentBox.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${error.message}</span>`;
+            } finally {
+                aiContentBox.classList.remove('blinking-cursor');
+                isGenerating = false;
+                sendBtn.disabled = false;
+                scrollToBottom();
+            }
+        }
+    </script>
 </body>
 </html>

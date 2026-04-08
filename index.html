@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Gemini Style AI - Ultimate Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Google Gemini Style AI - Responsive</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,7 @@
     <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -25,14 +25,21 @@
             background-color: #131314;
             color: #e3e3e3;
             margin: 0;
-            height: 100vh;
+            /* Use dvh to fix mobile browser bottom bar cut-off issue */
+            height: 100dvh; 
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar { width: 6px; }
+        /* General Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 4px;}
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #444746; border-radius: 10px; }
+
+        /* Hide scrollbar for the mode chips but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .gemini-gradient {
             background: linear-gradient(74deg, #4285f4 0, #9b72cb 9%, #d96570 20%, #d96570 24%, #9b72cb 35%, #4285f4 44%, #9b72cb 50%, #d96570 56%, #131314 75%, #131314 100%);
@@ -45,121 +52,102 @@
         textarea:focus { outline: none; }
 
         /* AI Markdown Styles */
-        .ai-response { font-size: 1rem; line-height: 1.6; }
-        .ai-response p { margin-bottom: 1rem; }
+        .ai-response p { margin-bottom: 1rem; line-height: 1.6; }
         .ai-response h1, .ai-response h2, .ai-response h3 { color: #fff; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        .ai-response ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-        .ai-response ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-response ul, .ai-response ol { padding-left: 1.5rem; margin-bottom: 1rem; }
         .ai-response pre { background: #1e1e20; padding: 1rem; border-radius: 12px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #444746; }
         .ai-response code { font-family: monospace; background: #282a2c; padding: 2px 6px; border-radius: 6px; color: #a8c7fa; }
         .ai-response pre code { background: transparent; padding: 0; color: #e3e3e3; }
-        .ai-response a { color: #8ab4f8; text-decoration: underline; }
 
-        /* Blinking Cursor for text stream */
         .blinking-cursor::after {
-            content: '⬤';
-            font-size: 10px;
-            animation: blink 1s infinite;
-            margin-left: 5px;
-            color: #a8c7fa;
+            content: '⬤'; font-size: 10px; animation: blink 1s infinite; margin-left: 5px; color: #a8c7fa;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .mode-chip.active { background-color: #a8c7fa; color: #041e49; font-weight: 500; }
+        .mode-chip.active { background-color: #a8c7fa; color: #041e49; font-weight: 500; border-color: #a8c7fa; }
         
-        /* Shimmer Effect for Image Loading */
         .shimmer {
             background: #282a2c;
             background-image: linear-gradient(to right, #282a2c 0%, #333537 20%, #282a2c 40%, #282a2c 100%);
-            background-repeat: no-repeat;
-            background-size: 800px 100%; 
-            animation-duration: 1.5s;
-            animation-fill-mode: forwards; 
-            animation-iteration-count: infinite;
-            animation-name: placeholderShimmer;
-            animation-timing-function: linear;
+            background-repeat: no-repeat; background-size: 800px 100%; 
+            animation: placeholderShimmer 1.5s linear infinite forwards;
         }
-        @keyframes placeholderShimmer {
-            0% { background-position: -468px 0; }
-            100% { background-position: 468px 0; }
-        }
+        @keyframes placeholderShimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
     </style>
 </head>
-<body class="flex flex-col h-screen relative">
+<body>
 
-    <!-- Top Navigation -->
-    <div class="flex items-center justify-between p-4 bg-[#131314] text-white z-10">
-        <div class="text-xl font-medium tracking-wide flex items-center gap-2">
+    <!-- Header (Fixed at top) -->
+    <header class="flex-none flex items-center justify-between p-4 bg-[#131314] text-white">
+        <div class="text-lg md:text-xl font-medium tracking-wide flex items-center gap-2">
             <i class="fa-solid fa-sparkles text-[#a8c7fa]"></i> Ultimate AI
         </div>
-        <button onclick="location.reload()" class="bg-[#1e1f20] hover:bg-[#333537] px-4 py-2 rounded-full text-sm font-medium transition">
-            <i class="fa-solid fa-plus mr-2"></i> New Chat
+        <button onclick="location.reload()" class="bg-[#1e1f20] hover:bg-[#333537] px-4 py-2 rounded-full text-sm font-medium transition flex items-center">
+            <i class="fa-solid fa-plus mr-2"></i> New
         </button>
-    </div>
+    </header>
 
-    <!-- Main Chat Area -->
-    <div id="chatContainer" class="flex-1 overflow-y-auto px-4 pb-48">
-        <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto">
-            <h1 class="text-5xl font-medium mb-4 gemini-gradient">Hello, how can I help?</h1>
-            <p class="text-[#c4c7c5] text-lg mb-8">Upload an image, generate a new one, or just chat!</p>
+    <!-- Main Chat Area (Scrollable) -->
+    <main id="chatContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 w-full max-w-5xl mx-auto">
+        <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center">
+            <!-- Responsive text sizing -->
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-medium mb-4 gemini-gradient pb-2">Hello, how can I help?</h1>
+            <p class="text-[#c4c7c5] text-base md:text-lg mb-8 max-w-md">Upload an image, generate a new one, or just chat!</p>
         </div>
-    </div>
+    </main>
 
-    <!-- Bottom Input Area -->
-    <div class="absolute bottom-0 left-0 w-full bg-[#131314] bg-opacity-90 backdrop-blur-md pt-2 pb-6 px-4">
+    <!-- Bottom Input Area (Fixed at bottom naturally via Flexbox) -->
+    <footer class="flex-none w-full bg-[#131314] pt-2 pb-4 px-4 sm:px-6 md:px-8">
         <div class="max-w-4xl mx-auto">
             
-            <!-- Feature Selectors -->
-            <div class="flex flex-wrap gap-2 mb-3 justify-center md:justify-start">
-                <button onclick="setMode('text', this)" class="mode-chip active bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+            <!-- Feature Selectors (Horizontally scrollable on mobile) -->
+            <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-3 pb-1 snap-x">
+                <button onclick="setMode('text', this)" class="mode-chip active shrink-0 bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
                     <i class="fa-regular fa-comment mr-1"></i> Chat
                 </button>
-                <button onclick="setMode('web', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                <button onclick="setMode('web', this)" class="mode-chip shrink-0 bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
                     <i class="fa-solid fa-globe mr-1"></i> Web Search
                 </button>
-                <button onclick="setMode('image', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                <button onclick="setMode('image', this)" class="mode-chip shrink-0 bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
                     <i class="fa-solid fa-palette mr-1"></i> Create Image
                 </button>
-                <button onclick="setMode('tts', this)" class="mode-chip bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
+                <button onclick="setMode('tts', this)" class="mode-chip shrink-0 bg-[#1e1f20] hover:bg-[#333537] text-white px-4 py-1.5 rounded-lg text-sm border border-[#444746] transition">
                     <i class="fa-solid fa-volume-high mr-1"></i> Text-to-Speech
                 </button>
             </div>
 
-            <!-- Main Input Box with Attachment logic -->
-            <div class="relative flex flex-col bg-[#1e1f20] border border-[#444746] rounded-[24px] focus-within:bg-[#282a2c] transition-colors p-2">
+            <!-- Input Box -->
+            <div class="relative flex flex-col bg-[#1e1f20] border border-[#444746] rounded-3xl focus-within:bg-[#282a2c] transition-colors p-1 md:p-2">
                 
-                <!-- Image Preview Section (Hidden default) -->
+                <!-- Image Preview Section -->
                 <div id="imagePreviewContainer" class="hidden px-4 pt-3 pb-1 relative inline-block">
-                    <div class="relative w-20 h-20 group">
+                    <div class="relative w-16 h-16 md:w-20 md:h-20 group">
                         <img id="imagePreview" src="" alt="Attached" class="w-full h-full object-cover rounded-xl border border-[#444746]">
-                        <button onclick="removeAttachment()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="removeAttachment()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex items-end w-full">
-                    <!-- File Upload Input (Hidden) -->
                     <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
                     
-                    <!-- Upload Button -->
-                    <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-2 w-10 h-10 rounded-full flex items-center justify-center text-[#c4c7c5] hover:bg-[#444746] hover:text-[#a8c7fa] transition" title="Upload Image">
+                    <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-1 md:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-[#c4c7c5] hover:bg-[#444746] hover:text-[#a8c7fa] transition">
                         <i class="fa-solid fa-paperclip text-lg"></i>
                     </button>
 
-                    <!-- Text Area (Supports Paste) -->
-                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-3 py-3 text-base" placeholder="Enter a prompt or paste (Ctrl+V) an image..." oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base" placeholder="Ask anything or paste image..." oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
                     
-                    <!-- Send Button -->
-                    <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-2 w-10 h-10 rounded-full flex items-center justify-center text-[#a8c7fa] hover:bg-[#444746] transition disabled:opacity-50">
+                    <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-1 md:mr-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-[#a8c7fa] hover:bg-[#444746] transition disabled:opacity-50">
                         <i class="fa-solid fa-paper-plane text-lg"></i>
                     </button>
                 </div>
             </div>
             
         </div>
-    </div>
+    </footer>
 
+    <!-- App Logic -->
     <script>
         marked.setOptions({ breaks: true, gfm: true });
 
@@ -172,9 +160,9 @@
         
         let currentMode = 'text';
         let isGenerating = false;
-        let currentAttachedImageBase64 = null; // Stores the uploaded image
+        let currentAttachedImageBase64 = null;
 
-        // --- PASTE EVENT FOR IMAGES (Ctrl + V) ---
+        // Paste Image Logic
         promptInput.addEventListener('paste', function (e) {
             if (e.clipboardData.files && e.clipboardData.files.length > 0) {
                 const file = e.clipboardData.files[0];
@@ -185,22 +173,18 @@
             }
         });
 
-        // --- FILE UPLOAD LOGIC ---
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) processFile(file);
-            event.target.value = ''; // reset input
+            event.target.value = '';
         }
 
-        // Convert File to Base64 and Show Preview
         function processFile(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 currentAttachedImageBase64 = e.target.result;
                 imagePreview.src = currentAttachedImageBase64;
                 imagePreviewContainer.classList.remove('hidden');
-                
-                // Automatically activate Chat mode (Vision mode) when image is attached
                 setMode('text', document.querySelector('.mode-chip'));
                 promptInput.placeholder = "What do you want to know about this image?";
                 promptInput.focus();
@@ -208,21 +192,21 @@
             reader.readAsDataURL(file);
         }
 
-        // Remove attached image
         function removeAttachment() {
             currentAttachedImageBase64 = null;
             imagePreview.src = '';
             imagePreviewContainer.classList.add('hidden');
-            promptInput.placeholder = "Enter a prompt or paste (Ctrl+V) an image...";
+            promptInput.placeholder = "Ask anything or paste image...";
         }
 
         function autoResize(textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px';
+            textarea.style.height = (textarea.scrollHeight < 120 ? textarea.scrollHeight : 120) + 'px';
         }
 
         function handleEnter(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            // Check for Enter without Shift, but allow newline on mobile keyboards 
+            if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
                 e.preventDefault();
                 processRequest();
             }
@@ -234,66 +218,44 @@
 
         function setMode(mode, element) {
             currentMode = mode;
-            document.querySelectorAll('.mode-chip').forEach(btn => btn.classList.remove('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium'));
-            element.classList.add('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium');
+            document.querySelectorAll('.mode-chip').forEach(btn => btn.classList.remove('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium', 'border-[#a8c7fa]'));
+            element.classList.add('active', 'bg-[#a8c7fa]', 'text-[#041e49]', 'font-medium', 'border-[#a8c7fa]');
 
             const placeholders = {
-                'text': currentAttachedImageBase64 ? 'Ask about the image...' : 'Enter a prompt or paste an image...',
-                'web': 'Search the web for latest info...',
-                'image': 'Describe the image you want to generate...',
+                'text': currentAttachedImageBase64 ? 'Ask about the image...' : 'Ask anything or paste image...',
+                'web': 'Search the web...',
+                'image': 'Describe the image you want...',
                 'tts': 'Type text to generate speech...'
             };
             promptInput.placeholder = placeholders[mode];
+            
+            // Auto scroll chips to make the active one fully visible on mobile
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
-        // --- BEAUTIFUL LOADING ANIMATIONS ---
         function getLoadingAnimation(mode) {
-            if(mode === 'image') {
-                return `
-                <div class="flex flex-col gap-2 p-2">
-                    <div class="flex items-center gap-3 text-[#a8c7fa]">
-                        <i class="fa-solid fa-palette fa-bounce text-xl"></i>
-                        <span class="font-medium">Painting your imagination...</span>
-                    </div>
-                    <div class="w-full max-w-sm h-64 shimmer rounded-xl border border-[#444746] mt-2"></div>
-                </div>`;
-            } else if (mode === 'web') {
-                return `
-                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
-                    <i class="fa-solid fa-globe fa-spin text-xl"></i>
-                    <span class="font-medium">Searching the vast web...</span>
-                </div>`;
-            } else if (mode === 'tts') {
-                return `
-                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
-                    <i class="fa-solid fa-music fa-fade text-xl"></i>
-                    <span class="font-medium">Generating audio waves...</span>
-                </div>`;
-            } else {
-                return `
-                <div class="flex items-center gap-3 text-[#a8c7fa] p-2">
-                    <i class="fa-solid fa-brain fa-fade text-xl"></i>
-                    <span class="font-medium animate-pulse">Thinking...</span>
-                </div>`;
-            }
+            if(mode === 'image') return `<div class="flex flex-col gap-2"><div class="flex items-center gap-3 text-[#a8c7fa] text-sm md:text-base"><i class="fa-solid fa-palette fa-bounce"></i><span class="font-medium">Painting your imagination...</span></div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#444746] mt-2"></div></div>`;
+            if(mode === 'web') return `<div class="flex items-center gap-3 text-[#a8c7fa] text-sm md:text-base"><i class="fa-solid fa-globe fa-spin"></i><span class="font-medium">Searching the vast web...</span></div>`;
+            if(mode === 'tts') return `<div class="flex items-center gap-3 text-[#a8c7fa] text-sm md:text-base"><i class="fa-solid fa-music fa-fade"></i><span class="font-medium">Generating audio waves...</span></div>`;
+            return `<div class="flex items-center gap-3 text-[#a8c7fa] text-sm md:text-base"><i class="fa-solid fa-brain fa-fade"></i><span class="font-medium animate-pulse">Thinking...</span></div>`;
         }
 
         function createChatBubble(isUser, text = '') {
             const wrapper = document.createElement('div');
-            wrapper.className = "max-w-4xl mx-auto w-full mb-6 flex gap-4 px-4";
+            wrapper.className = "w-full mb-6 flex gap-3 md:gap-4";
             
             const avatar = document.createElement('div');
-            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold mt-1 ${isUser ? 'bg-[#a8c7fa] text-[#041e49]' : 'bg-gradient-to-r from-[#4285f4] to-[#9b72cb]'}`;
+            avatar.className = `w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs md:text-sm font-bold mt-1 ${isUser ? 'bg-[#a8c7fa] text-[#041e49]' : 'bg-gradient-to-r from-[#4285f4] to-[#9b72cb]'}`;
             avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-sparkles"></i>';
 
             const contentBox = document.createElement('div');
-            contentBox.className = "flex-1 ai-response min-w-0 flex flex-col justify-center";
+            contentBox.className = "flex-1 ai-response min-w-0 flex flex-col justify-center text-sm md:text-base";
             
             if(isUser) {
                 if(currentAttachedImageBase64) {
                     const imgPreview = document.createElement('img');
                     imgPreview.src = currentAttachedImageBase64;
-                    imgPreview.className = "max-w-[200px] rounded-lg mb-3 border border-[#444746] object-cover";
+                    imgPreview.className = "max-w-[150px] md:max-w-[200px] rounded-lg mb-2 md:mb-3 border border-[#444746] object-cover";
                     contentBox.appendChild(imgPreview);
                 }
                 const textSpan = document.createElement('div');
@@ -307,26 +269,18 @@
             return contentBox;
         }
 
-        // --- MAIN AI PROCESSOR ---
         async function processRequest() {
             const prompt = promptInput.value.trim();
-            
-            // Allow sending only image without text, or text without image
             if (!prompt && !currentAttachedImageBase64 || isGenerating) return;
-
             if (welcomeScreen) welcomeScreen.style.display = 'none';
 
-            // User UI
             createChatBubble(true, prompt || "What's in this image?");
-            
-            // Backup image data and clear inputs
             const imageToSend = currentAttachedImageBase64;
             removeAttachment(); 
             promptInput.value = '';
             promptInput.style.height = 'auto';
             scrollToBottom();
 
-            // AI UI & Loading Animation
             const aiContentBox = createChatBubble(false);
             aiContentBox.innerHTML = getLoadingAnimation(imageToSend ? 'text' : currentMode);
             
@@ -334,18 +288,13 @@
             sendBtn.disabled = true;
 
             try {
-                // 1. VISION MODE (If user attached an image)
                 if (imageToSend) {
-                    // Vision API format: puter.ai.chat(prompt, base64_image, options)
-                    const response = await puter.ai.chat(prompt || "Analyze this image in detail.", imageToSend, { model: "gpt-5.4-nano" });
+                    const response = await puter.ai.chat(prompt || "Analyze this image.", imageToSend, { model: "gpt-5.4-nano" });
                     aiContentBox.innerHTML = marked.parse(response?.text || response?.message?.content || response);
                 }
-                
-                // 2. TEXT CHAT MODE
                 else if (currentMode === 'text') {
-                    aiContentBox.innerHTML = ''; // clear loading
+                    aiContentBox.innerHTML = ''; 
                     aiContentBox.classList.add('blinking-cursor');
-                    
                     const response = await puter.ai.chat(prompt, { model: "gpt-5.4", stream: true });
                     let fullText = "";
                     for await (const part of response) {
@@ -354,35 +303,26 @@
                         scrollToBottom();
                     }
                 }
-                
-                // 3. WEB SEARCH MODE
                 else if (currentMode === 'web') {
-                    const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools: [{ type: "web_search" }] });
+                    const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools:[{ type: "web_search" }] });
                     const responseText = (typeof response === 'string') ? response : (response?.text || response?.message?.content || JSON.stringify(response));
                     aiContentBox.innerHTML = marked.parse(responseText);
                 }
-                
-                // 4. IMAGE GENERATION MODE
                 else if (currentMode === 'image') {
                     const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
-                    
                     aiContentBox.innerHTML = '';
-                    imgElement.className = "w-full max-w-lg rounded-2xl border border-[#444746] shadow-lg mt-2 transition-opacity duration-1000";
+                    imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl md:rounded-2xl border border-[#444746] shadow-lg mt-2 transition-opacity duration-1000";
                     aiContentBox.appendChild(imgElement);
                 }
-                
-                // 5. TEXT TO SPEECH MODE
                 else if (currentMode === 'tts') {
                     const audioElement = await puter.ai.txt2speech(prompt, { provider: "openai" });
-                    
-                    aiContentBox.innerHTML = `<p class="mb-2 text-[#a8c7fa]"><i class="fa-solid fa-check-circle mr-1"></i> Audio Generated!</p>`;
+                    aiContentBox.innerHTML = `<p class="mb-2 text-[#a8c7fa] text-sm md:text-base"><i class="fa-solid fa-check-circle mr-1"></i> Audio Generated!</p>`;
                     audioElement.setAttribute("controls", "");
-                    audioElement.className = "w-full max-w-md rounded-full shadow-lg outline-none bg-[#1e1f20]";
+                    audioElement.className = "w-full max-w-[260px] md:max-w-md rounded-full shadow-lg outline-none bg-[#1e1f20] h-10 md:h-12";
                     aiContentBox.appendChild(audioElement);
                 }
-
             } catch (error) {
-                aiContentBox.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${error.message}</span>`;
+                aiContentBox.innerHTML = `<span class="text-red-400 text-sm md:text-base"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${error.message}</span>`;
             } finally {
                 aiContentBox.classList.remove('blinking-cursor');
                 isGenerating = false;

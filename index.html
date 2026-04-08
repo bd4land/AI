@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auto Agent AI - With Copy Feature (Fixed)</title>
+    <title>Bangladeshi Agent AI </title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
@@ -37,15 +37,10 @@
         textarea { resize: none; overflow-y: hidden; }
         textarea:focus { outline: none; }
 
-        /* General AI Text Styles */
         .ai-response p { margin-bottom: 1rem; line-height: 1.6; }
         .ai-response h1, .ai-response h2, .ai-response h3 { color: #fff; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
         .ai-response ul, .ai-response ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-        
-        /* Inline Code Style */
         .ai-response p code, .ai-response li code { font-family: monospace; background: #282a2c; padding: 2px 6px; border-radius: 6px; color: #92FE9D; }
-        
-        /* Pre/Code Block fixes for custom copy design */
         .ai-response pre code { background: transparent; padding: 0; color: #e3e3e3; }
 
         .blinking-cursor::after { content: '▋'; animation: blink 1s infinite; margin-left: 5px; color: #92FE9D; }
@@ -89,7 +84,7 @@
                 <i class="fa-solid fa-wand-magic-sparkles text-4xl text-[#92FE9D]"></i>
             </div>
             <h1 class="text-4xl md:text-5xl font-bold mb-4 magic-gradient pb-2">I am your AI Manager</h1>
-            <p class="text-gray-400 text-base md:text-lg mb-8 max-w-md">I can write code, generate images, and search the web. Now with easy 1-click copy!</p>
+            <p class="text-gray-400 text-base md:text-lg mb-8 max-w-md">I can now use your uploaded image as a reference to generate new, enhanced images!</p>
         </div>
     </main>
 
@@ -111,32 +106,28 @@
                     <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-1 md:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-400 hover:bg-[#2c2d30] hover:text-[#92FE9D] transition">
                         <i class="fa-solid fa-paperclip text-xl"></i>
                     </button>
-                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base leading-relaxed" placeholder="Type here... (e.g. Write a Python code for...)" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base leading-relaxed" placeholder="Type here... (e.g. Make an image of...)" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
                     <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-1 md:mr-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-800 bg-[#92FE9D] hover:bg-[#6ee680] transition disabled:opacity-50 disabled:bg-gray-700">
                         <i class="fa-solid fa-arrow-up text-lg font-bold"></i>
                     </button>
                 </div>
             </div>
             <div class="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-bolt text-[#00C9FF]"></i> Advanced Regex + AI Routing Enabled
+                <i class="fa-solid fa-bolt text-[#00C9FF]"></i> Advanced Image-to-Image Routing Enabled
             </div>
         </div>
     </footer>
 
     <script>
         // ==========================================
-        //  FIXED MARKDOWN RENDERER (Supports Marked.js v13+)
+        //  FIXED MARKDOWN RENDERER
         // ==========================================
         marked.use({
             renderer: {
                 code(token) {
-                    // Handle both new marked format (object) and old format (string)
                     const codeText = typeof token === 'string' ? token : (token.text || '');
                     const language = typeof token === 'string' ? arguments[1] : (token.lang || '');
-                    
-                    // Escape code for safe HTML display
                     const safeCode = codeText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    
                     return `
                     <div class="code-block-wrapper my-4 rounded-xl border border-[#333] overflow-hidden bg-[#1e1e20] shadow-sm">
                         <div class="flex justify-between items-center bg-[#282a2c] text-gray-400 text-xs px-4 py-2 border-b border-[#333]">
@@ -154,50 +145,28 @@
         });
         marked.setOptions({ breaks: true, gfm: true });
 
-        // ==========================================
-        //  COPY FUNCTIONS
-        // ==========================================
+        // Copy Functions
         function copyCode(btn) {
-            const codeContainer = btn.closest('.code-block-wrapper').querySelector('code');
-            const textToCopy = codeContainer.innerText;
-            
+            const textToCopy = btn.closest('.code-block-wrapper').querySelector('code').innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                const icon = btn.querySelector('i');
-                const span = btn.querySelector('span');
-                icon.className = 'fa-solid fa-check text-[#92FE9D]';
-                span.innerText = 'Copied!';
-                span.classList.add('text-[#92FE9D]');
-                setTimeout(() => {
-                    icon.className = 'fa-regular fa-copy text-gray-400 group-hover:text-[#92FE9D]';
-                    span.innerText = 'Copy code';
-                    span.classList.remove('text-[#92FE9D]');
-                }, 2000);
+                const icon = btn.querySelector('i'); const span = btn.querySelector('span');
+                icon.className = 'fa-solid fa-check text-[#92FE9D]'; span.innerText = 'Copied!'; span.classList.add('text-[#92FE9D]');
+                setTimeout(() => { icon.className = 'fa-regular fa-copy text-gray-400'; span.innerText = 'Copy code'; span.classList.remove('text-[#92FE9D]'); }, 2000);
             });
         }
 
         function copyMessage(btn) {
-            const wrapper = btn.closest('.ai-response-wrapper');
-            const textToCopy = wrapper.getAttribute('data-raw-text');
-            
+            const textToCopy = btn.closest('.ai-response-wrapper').getAttribute('data-raw-text');
             if(textToCopy) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
-                    const icon = btn.querySelector('i');
-                    const span = btn.querySelector('span');
-                    icon.className = 'fa-solid fa-check text-[#92FE9D]';
-                    span.innerText = 'Copied!';
-                    span.classList.add('text-[#92FE9D]');
-                    setTimeout(() => {
-                        icon.className = 'fa-regular fa-copy';
-                        span.innerText = 'Copy Response';
-                        span.classList.remove('text-[#92FE9D]');
-                    }, 2000);
+                    const icon = btn.querySelector('i'); const span = btn.querySelector('span');
+                    icon.className = 'fa-solid fa-check text-[#92FE9D]'; span.innerText = 'Copied!'; span.classList.add('text-[#92FE9D]');
+                    setTimeout(() => { icon.className = 'fa-regular fa-copy'; span.innerText = 'Copy Response'; span.classList.remove('text-[#92FE9D]'); }, 2000);
                 });
             }
         }
 
-        // ==========================================
-        //  APP LOGIC
-        // ==========================================
+        // DOM Elements
         const chatContainer = document.getElementById('chatContainer');
         const promptInput = document.getElementById('promptInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -208,21 +177,14 @@
         let isGenerating = false;
         let currentAttachedImageBase64 = null;
 
-        promptInput.addEventListener('paste', function (e) {
-            if (e.clipboardData.files && e.clipboardData.files.length > 0) {
-                const file = e.clipboardData.files[0];
-                if (file.type.startsWith('image/')) {
-                    e.preventDefault();
-                    processFile(file);
-                }
+        // Inputs Handlers
+        promptInput.addEventListener('paste', e => {
+            if (e.clipboardData.files && e.clipboardData.files.length > 0 && e.clipboardData.files[0].type.startsWith('image/')) {
+                e.preventDefault(); processFile(e.clipboardData.files[0]);
             }
         });
 
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) processFile(file);
-            event.target.value = '';
-        }
+        function handleFileUpload(event) { if (event.target.files[0]) processFile(event.target.files[0]); event.target.value = ''; }
 
         function processFile(file) {
             const reader = new FileReader();
@@ -230,7 +192,7 @@
                 currentAttachedImageBase64 = e.target.result;
                 imagePreview.src = currentAttachedImageBase64;
                 imagePreviewContainer.classList.remove('hidden');
-                promptInput.placeholder = "Image attached! Ask something about it...";
+                promptInput.placeholder = "Image attached! You can ask to generate a similar image...";
                 promptInput.focus();
             };
             reader.readAsDataURL(file);
@@ -238,26 +200,13 @@
 
         function removeAttachment() {
             currentAttachedImageBase64 = null;
-            imagePreview.src = '';
-            imagePreviewContainer.classList.add('hidden');
-            promptInput.placeholder = "Type here... (e.g. Write a Python code for...)";
+            imagePreview.src = ''; imagePreviewContainer.classList.add('hidden');
+            promptInput.placeholder = "Type here... (e.g. Make an image...)";
         }
 
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px';
-        }
-
-        function handleEnter(e) {
-            if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
-                e.preventDefault();
-                processRequest();
-            }
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
+        function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px'; }
+        function handleEnter(e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); processRequest(); } }
+        function scrollToBottom() { chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); }
 
         function createChatBubble(isUser, text = '') {
             const mainWrapper = document.createElement('div');
@@ -280,9 +229,7 @@
                     imgPreview.className = "max-w-[150px] md:max-w-[200px] rounded-xl mb-2 md:mb-3 border border-[#333] object-cover";
                     contentBox.appendChild(imgPreview);
                 }
-                const textSpan = document.createElement('div');
-                textSpan.innerText = text;
-                contentBox.appendChild(textSpan);
+                const textSpan = document.createElement('div'); textSpan.innerText = text; contentBox.appendChild(textSpan);
             }
 
             contentWrapper.appendChild(contentBox);
@@ -290,36 +237,58 @@
             if (!isUser) {
                 const actionBar = document.createElement('div');
                 actionBar.className = "flex gap-4 mt-2 text-gray-500 text-xs md:text-sm opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300";
-                actionBar.innerHTML = `
-                    <button onclick="copyMessage(this)" class="hover:text-white transition flex items-center gap-1.5 bg-[#1a1b1e] px-2 py-1 rounded-md border border-[#333]">
-                        <i class="fa-regular fa-copy"></i> <span>Copy Response</span>
-                    </button>
-                `;
+                actionBar.innerHTML = `<button onclick="copyMessage(this)" class="hover:text-white transition flex items-center gap-1.5 bg-[#1a1b1e] px-2 py-1 rounded-md border border-[#333]"><i class="fa-regular fa-copy"></i> <span>Copy Response</span></button>`;
                 contentWrapper.appendChild(actionBar);
             }
 
-            mainWrapper.appendChild(avatar);
-            mainWrapper.appendChild(contentWrapper);
-            chatContainer.appendChild(mainWrapper);
-            
+            mainWrapper.appendChild(avatar); mainWrapper.appendChild(contentWrapper); chatContainer.appendChild(mainWrapper);
             return { contentBox, mainWrapper };
         }
 
-        async function determineTaskType(prompt) {
+        // ==========================================
+        //  THE SUPER HYBRID ROUTER
+        // ==========================================
+        async function determineTaskType(prompt, hasImage) {
             let cleanPrompt = prompt.replace(/['"]/g, '').toLowerCase().trim();
-            if (cleanPrompt.includes("create an image") || cleanPrompt.includes("generate an image") || cleanPrompt.includes("make an image") || cleanPrompt.includes("draw a") || cleanPrompt.endsWith("make it") || cleanPrompt.endsWith("make it.")) return 'IMAGE';
-            if (cleanPrompt.startsWith("search") || cleanPrompt.includes("search the web") || cleanPrompt.includes("latest news")) return 'SEARCH';
+
+            // 1. Bulletproof Regex for spelling mistakes (inage, image, pic)
+            const imgWords =['image', 'inage', 'picture', 'pic', 'photo', 'art', 'drawing'];
+            const actionWords =['make', 'create', 'generate', 'draw', 'paint'];
+            let wantsImage = false;
+            
+            for (let a of actionWords) {
+                for (let i of imgWords) {
+                    if (cleanPrompt.includes(`${a} a ${i}`) || cleanPrompt.includes(`${a} an ${i}`) || cleanPrompt.includes(`${a} ${i}`)) {
+                        wantsImage = true; break;
+                    }
+                }
+            }
+            if (cleanPrompt.endsWith("make it") || cleanPrompt.startsWith("draw ")) wantsImage = true;
+
+            // If user explicitely wants to make an image -> Force IMAGE mode
+            if (wantsImage) return 'IMAGE';
+
+            if (cleanPrompt.startsWith("search") || cleanPrompt.includes("latest news")) return 'SEARCH';
             if (cleanPrompt.includes("convert to audio") || cleanPrompt.includes("speak this")) return 'AUDIO';
 
-            const routerPrompt = `Task: Classify this user request into exactly ONE category: IMAGE, SEARCH, AUDIO, or CHAT.\nRules:\n- Reply "IMAGE" if they ask for a picture, painting, art, or say "make it" for a visual scene.\n- Reply "SEARCH" if they want real-time information or web search.\n- Reply "AUDIO" if they want to hear voice/speech.\n- Reply "CHAT" for all other questions, coding, or text generation.\nReply with ONLY the exact word. No punctuation.\nRequest: "${prompt}"`;
+            // If no clear text command, but an image is uploaded -> Default to VISION
+            if (hasImage && cleanPrompt === "") return 'VISION';
+
+            // 2. AI Router for complex sentences
+            const routerPrompt = `Task: Classify this user request into exactly ONE category: IMAGE, SEARCH, AUDIO, or CHAT.\nRules:\n- Reply "IMAGE" if they ask to create, make, or generate a picture/photo.\n- Reply "SEARCH" if they want real-time info or web search.\n- Reply "AUDIO" if they want voice/speech.\n- Reply "CHAT" for general questions or text generation.\nReply ONLY with the exact word. No punctuation.\nRequest: "${prompt}"`;
             try {
                 const rawResponse = await puter.ai.chat(routerPrompt, { model: 'gpt-5.4-nano', temperature: 0 });
                 let decision = (typeof rawResponse === 'string' ? rawResponse : rawResponse?.text || "").trim().toUpperCase().replace(/[^A-Z]/g, '');
                 if (['IMAGE', 'SEARCH', 'AUDIO'].includes(decision)) return decision;
-                return 'CHAT';
-            } catch (error) { return 'CHAT'; }
+            } catch (error) {}
+
+            // 3. Ultimate Fallback -> If there's an image attached, chat about the image.
+            return hasImage ? 'VISION' : 'CHAT';
         }
 
+        // ==========================================
+        //  PROCESSOR
+        // ==========================================
         async function processRequest() {
             const prompt = promptInput.value.trim();
             if (!prompt && !currentAttachedImageBase64 || isGenerating) return;
@@ -328,72 +297,98 @@
             createChatBubble(true, prompt || "Analyze this image.");
             const imageToSend = currentAttachedImageBase64;
             removeAttachment(); 
-            promptInput.value = '';
-            promptInput.style.height = 'auto';
-            scrollToBottom();
+            promptInput.value = ''; promptInput.style.height = 'auto'; scrollToBottom();
 
             const aiElements = createChatBubble(false);
             const aiContentBox = aiElements.contentBox;
             const mainWrapper = aiElements.mainWrapper;
             
-            isGenerating = true;
-            sendBtn.disabled = true;
+            isGenerating = true; sendBtn.disabled = true;
 
             try {
-                if (imageToSend) {
+                aiContentBox.innerHTML = `<div class="flex items-center gap-3 text-gray-400 text-sm"><i class="fa-solid fa-microchip fa-fade text-[#00C9FF]"></i><span>Manager is routing request...</span></div>`;
+                
+                // Route Decision: Passes whether an image is attached to make a better decision
+                const taskType = await determineTaskType(prompt, !!imageToSend);
+
+                // =========== 1. IMAGE GENERATION ===========
+                if (taskType === 'IMAGE') {
+                    if (imageToSend) {
+                        // Image-to-Image Magic Workflow
+                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Manager: Scanning Reference Image...</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm"><i class="fa-solid fa-scan fa-pulse"></i><span>Extracting details from uploaded image...</span></div>`;
+                        
+                        // Step A: Describe the image
+                        const visionResp = await puter.ai.chat("Describe this image in extreme detail (colors, subject, style) so an AI image generator can recreate it perfectly.", imageToSend, { model: "gpt-5.4-nano" });
+                        const imgDesc = visionResp?.text || visionResp?.message?.content || visionResp;
+
+                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Enhanced Image...</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
+                        
+                        // Step B: Generate new image
+                        const finalPrompt = `A high quality digital image based on this description: ${imgDesc}. User modifications/style requested: ${prompt}`;
+                        const imgElement = await puter.ai.txt2img(finalPrompt, { model: "gpt-image-1.5" });
+                        
+                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Enhanced Image Created</div><br>`;
+                        imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
+                        aiContentBox.appendChild(imgElement);
+                        
+                        mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used internally: " + finalPrompt);
+                    } else {
+                        // Standard Text-to-Image
+                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Image</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
+                        const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
+                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Image Created</div><br>`;
+                        imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
+                        aiContentBox.appendChild(imgElement);
+                        mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used: " + prompt); 
+                    }
+                }
+                
+                // =========== 2. VISION ANALYSIS ===========
+                else if (taskType === 'VISION') {
                     aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Manager: Vision Analysis</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm"><i class="fa-solid fa-scan fa-pulse"></i><span>Scanning pixels...</span></div>`;
                     const response = await puter.ai.chat(prompt || "What is in this image?", imageToSend, { model: "gpt-5.4-nano" });
                     const textResult = response?.text || response?.message?.content || response;
                     
                     aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Vision Complete</div><div class="mt-1">${marked.parse(textResult)}</div>`;
                     mainWrapper.setAttribute('data-raw-text', textResult); 
-                } 
-                else {
-                    aiContentBox.innerHTML = `<div class="flex items-center gap-3 text-gray-400 text-sm"><i class="fa-solid fa-microchip fa-fade text-[#00C9FF]"></i><span>Manager is deciding...</span></div>`;
-                    const taskType = await determineTaskType(prompt);
+                }
+                
+                // =========== 3. WEB SEARCH ===========
+                else if (taskType === 'SEARCH') {
+                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Manager: Web Search</div><div class="flex items-center gap-3 text-[#00C9FF] text-sm mt-2"><i class="fa-solid fa-satellite-dish fa-spin"></i><span>Browsing internet...</span></div>`;
+                    const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools:[{ type: "web_search" }] });
+                    const responseText = (typeof response === 'string') ? response : (response?.text || response?.message?.content || JSON.stringify(response));
+                    
+                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Web Results</div><div class="mt-1">${marked.parse(responseText)}</div>`;
+                    mainWrapper.setAttribute('data-raw-text', responseText);
+                }
 
-                    if (taskType === 'IMAGE') {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Image</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
-                        const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Image Created</div><br>`;
-                        imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
-                        aiContentBox.appendChild(imgElement);
-                        
-                        mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used: " + prompt); 
-                    }
-                    else if (taskType === 'SEARCH') {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Manager: Web Search</div><div class="flex items-center gap-3 text-[#00C9FF] text-sm mt-2"><i class="fa-solid fa-satellite-dish fa-spin"></i><span>Browsing internet...</span></div>`;
-                        const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools:[{ type: "web_search" }] });
-                        const responseText = (typeof response === 'string') ? response : (response?.text || response?.message?.content || JSON.stringify(response));
-                        
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Web Results</div><div class="mt-1">${marked.parse(responseText)}</div>`;
-                        mainWrapper.setAttribute('data-raw-text', responseText);
-                    }
-                    else if (taskType === 'AUDIO') {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Manager: Voice Gen</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm mt-2"><i class="fa-solid fa-compact-disc fa-spin"></i><span>Synthesizing...</span></div>`;
-                        const audioElement = await puter.ai.txt2speech(prompt, { provider: "openai" });
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Audio Generated</div><br>`;
-                        audioElement.setAttribute("controls", "");
-                        audioElement.className = "w-full max-w-[260px] md:max-w-md rounded-full shadow-lg outline-none bg-[#1a1b1e] h-10 md:h-12 border border-[#333] mt-1";
-                        aiContentBox.appendChild(audioElement);
-                        
-                        mainWrapper.setAttribute('data-raw-text', prompt);
-                    }
-                    else {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1 blinking-cursor"></div>`;
-                        const response = await puter.ai.chat(prompt, { model: "gpt-5.4", stream: true });
-                        let fullText = "";
-                        const badgeHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1">`;
-                        
-                        for await (const part of response) {
-                            fullText += (part?.text || part?.message?.content || "");
-                            aiContentBox.innerHTML = badgeHTML + marked.parse(fullText) + "</div>";
-                            
-                            mainWrapper.setAttribute('data-raw-text', fullText);
-                            scrollToBottom();
-                        }
+                // =========== 4. AUDIO GENERATION ===========
+                else if (taskType === 'AUDIO') {
+                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Manager: Voice Gen</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm mt-2"><i class="fa-solid fa-compact-disc fa-spin"></i><span>Synthesizing...</span></div>`;
+                    const audioElement = await puter.ai.txt2speech(prompt, { provider: "openai" });
+                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Audio Generated</div><br>`;
+                    audioElement.setAttribute("controls", "");
+                    audioElement.className = "w-full max-w-[260px] md:max-w-md rounded-full shadow-lg outline-none bg-[#1a1b1e] h-10 md:h-12 border border-[#333] mt-1";
+                    aiContentBox.appendChild(audioElement);
+                    mainWrapper.setAttribute('data-raw-text', prompt);
+                }
+
+                // =========== 5. TEXT CHAT ===========
+                else {
+                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1 blinking-cursor"></div>`;
+                    const response = await puter.ai.chat(prompt, { model: "gpt-5.4", stream: true });
+                    let fullText = "";
+                    const badgeHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1">`;
+                    
+                    for await (const part of response) {
+                        fullText += (part?.text || part?.message?.content || "");
+                        aiContentBox.innerHTML = badgeHTML + marked.parse(fullText) + "</div>";
+                        mainWrapper.setAttribute('data-raw-text', fullText);
+                        scrollToBottom();
                     }
                 }
+                
             } catch (error) {
                 aiContentBox.innerHTML = `<span class="text-red-400 text-sm md:text-base"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${error.message}</span>`;
             } finally {

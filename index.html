@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bangladesh Agent AI</title>
+    <title>Auto Agent AI - With Copy Feature (Fixed)</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
@@ -125,31 +125,38 @@
 
     <script>
         // ==========================================
-        //  CUSTOM MARKDOWN RENDERER (For Copyable Code Blocks)
+        //  FIXED MARKDOWN RENDERER (Supports Marked.js v13+)
         // ==========================================
-        const renderer = new marked.Renderer();
-        renderer.code = function(code, language) {
-            // Escape code for safe display inside pre/code tags
-            const safeCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return `
-            <div class="code-block-wrapper my-4 rounded-xl border border-[#333] overflow-hidden bg-[#1e1e20] shadow-sm">
-                <div class="flex justify-between items-center bg-[#282a2c] text-gray-400 text-xs px-4 py-2 border-b border-[#333]">
-                    <span class="uppercase tracking-wider font-semibold">${language || 'Code'}</span>
-                    <button onclick="copyCode(this)" class="hover:text-[#92FE9D] transition flex items-center gap-1.5">
-                        <i class="fa-regular fa-copy"></i> <span>Copy code</span>
-                    </button>
-                </div>
-                <div class="p-4 overflow-x-auto">
-                    <pre class="!m-0 !p-0 !bg-transparent !border-none"><code class="language-${language}">${safeCode}</code></pre>
-                </div>
-            </div>`;
-        };
-        marked.setOptions({ renderer: renderer, breaks: true, gfm: true });
+        marked.use({
+            renderer: {
+                code(token) {
+                    // Handle both new marked format (object) and old format (string)
+                    const codeText = typeof token === 'string' ? token : (token.text || '');
+                    const language = typeof token === 'string' ? arguments[1] : (token.lang || '');
+                    
+                    // Escape code for safe HTML display
+                    const safeCode = codeText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    
+                    return `
+                    <div class="code-block-wrapper my-4 rounded-xl border border-[#333] overflow-hidden bg-[#1e1e20] shadow-sm">
+                        <div class="flex justify-between items-center bg-[#282a2c] text-gray-400 text-xs px-4 py-2 border-b border-[#333]">
+                            <span class="uppercase tracking-wider font-semibold">${language || 'Code'}</span>
+                            <button onclick="copyCode(this)" class="hover:text-[#92FE9D] transition flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> <span>Copy code</span>
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-x-auto">
+                            <pre class="!m-0 !p-0 !bg-transparent !border-none"><code class="language-${language}">${safeCode}</code></pre>
+                        </div>
+                    </div>`;
+                }
+            }
+        });
+        marked.setOptions({ breaks: true, gfm: true });
 
         // ==========================================
         //  COPY FUNCTIONS
         // ==========================================
-        // Copy Single Code Block
         function copyCode(btn) {
             const codeContainer = btn.closest('.code-block-wrapper').querySelector('code');
             const textToCopy = codeContainer.innerText;
@@ -168,7 +175,6 @@
             });
         }
 
-        // Copy Entire Message (Prompt/Response)
         function copyMessage(btn) {
             const wrapper = btn.closest('.ai-response-wrapper');
             const textToCopy = wrapper.getAttribute('data-raw-text');
@@ -281,10 +287,8 @@
 
             contentWrapper.appendChild(contentBox);
 
-            // Add Full Message Copy Button for AI Only
             if (!isUser) {
                 const actionBar = document.createElement('div');
-                // The copy button stays slightly faded until hovered or touched
                 actionBar.className = "flex gap-4 mt-2 text-gray-500 text-xs md:text-sm opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300";
                 actionBar.innerHTML = `
                     <button onclick="copyMessage(this)" class="hover:text-white transition flex items-center gap-1.5 bg-[#1a1b1e] px-2 py-1 rounded-md border border-[#333]">
@@ -298,7 +302,6 @@
             mainWrapper.appendChild(contentWrapper);
             chatContainer.appendChild(mainWrapper);
             
-            // Return content box and wrapper so we can update them
             return { contentBox, mainWrapper };
         }
 
@@ -343,7 +346,7 @@
                     const textResult = response?.text || response?.message?.content || response;
                     
                     aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Vision Complete</div><div class="mt-1">${marked.parse(textResult)}</div>`;
-                    mainWrapper.setAttribute('data-raw-text', textResult); // Store raw text for copying
+                    mainWrapper.setAttribute('data-raw-text', textResult); 
                 } 
                 else {
                     aiContentBox.innerHTML = `<div class="flex items-center gap-3 text-gray-400 text-sm"><i class="fa-solid fa-microchip fa-fade text-[#00C9FF]"></i><span>Manager is deciding...</span></div>`;
@@ -356,7 +359,6 @@
                         imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
                         aiContentBox.appendChild(imgElement);
                         
-                        // Set text to prompt since image can't be copied as text
                         mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used: " + prompt); 
                     }
                     else if (taskType === 'SEARCH') {
@@ -387,7 +389,6 @@
                             fullText += (part?.text || part?.message?.content || "");
                             aiContentBox.innerHTML = badgeHTML + marked.parse(fullText) + "</div>";
                             
-                            // Dynamically update raw text so user can copy even if generation stops halfway
                             mainWrapper.setAttribute('data-raw-text', fullText);
                             scrollToBottom();
                         }

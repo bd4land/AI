@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bangladeshi Agent AI </title>
+    <title>Obaydul AI - Pro Edition</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
@@ -11,382 +11,328 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Freehand&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Google Sans', sans-serif;
-            background-color: #0f0f11;
-            color: #e3e3e3;
-            margin: 0;
-            height: 100dvh; 
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        :root {
+            --bd-green: #006a4e;
+            --bd-red: #f42a41;
+            --dark-bg: #09090b;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 4px;}
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #444746; border-radius: 10px; }
+        body {
+            font-family: 'Hind Siliguri', 'Google Sans', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e4e4e7;
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            overflow: hidden;
+        }
 
-        .magic-gradient {
+        /* Sidebar for History & Auth */
+        #sidebar {
+            width: 280px;
+            background-color: #000;
+            border-right: 1px solid #1f1f23;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar { position: absolute; left: -280px; z-index: 50; height: 100%; }
+            #sidebar.open { left: 0; }
+        }
+
+        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; }
+
+        .gemini-text {
             background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
 
-        textarea { resize: none; overflow-y: hidden; }
-        textarea:focus { outline: none; }
-
-        .ai-response p { margin-bottom: 1rem; line-height: 1.6; }
-        .ai-response h1, .ai-response h2, .ai-response h3 { color: #fff; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        .ai-response ul, .ai-response ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-        .ai-response p code, .ai-response li code { font-family: monospace; background: #282a2c; padding: 2px 6px; border-radius: 6px; color: #92FE9D; }
-        .ai-response pre code { background: transparent; padding: 0; color: #e3e3e3; }
-
-        .blinking-cursor::after { content: '▋'; animation: blink 1s infinite; margin-left: 5px; color: #92FE9D; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        .shimmer {
-            background: #282a2c;
-            background-image: linear-gradient(to right, #282a2c 0%, #3a3d40 20%, #282a2c 40%, #282a2c 100%);
-            background-repeat: no-repeat; background-size: 800px 100%; 
-            animation: placeholderShimmer 1.5s linear infinite forwards;
+        /* Glassmorphism Input */
+        .input-area {
+            background: rgba(15, 15, 17, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid #1f1f23;
         }
-        @keyframes placeholderShimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
+
+        .ai-response pre { 
+            background: #111; 
+            border: 1px solid #222;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
 
         .manager-badge {
-            display: inline-block;
-            background: rgba(146, 254, 157, 0.1);
-            color: #92FE9D;
-            border: 1px solid rgba(146, 254, 157, 0.3);
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            font-weight: 500;
+            background: linear-gradient(45deg, var(--bd-green), #059669);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 106, 78, 0.3);
+        }
+
+        /* Pulse Animation for Recording */
+        .pulse-red {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 42, 65, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(244, 42, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 42, 65, 0); }
         }
     </style>
 </head>
 <body>
 
-    <header class="flex-none flex items-center justify-between p-4 bg-[#0f0f11] text-white border-b border-[#222]">
-        <div class="text-lg md:text-xl font-medium tracking-wide flex items-center gap-2">
-            <i class="fa-solid fa-robot text-[#92FE9D]"></i> Auto Agent AI
+    <!-- Sidebar -->
+    <aside id="sidebar" class="flex flex-col">
+        <div class="p-4 border-b border-[#222] flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-history mr-2"></i> History</h2>
+            <button onclick="toggleSidebar()" class="md:hidden text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
-        <button onclick="location.reload()" class="bg-[#1a1b1e] hover:bg-[#2c2d30] px-4 py-2 rounded-full text-sm font-medium transition flex items-center border border-[#333]">
-            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
-        </button>
-    </header>
-
-    <main id="chatContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 w-full max-w-4xl mx-auto pt-6">
-        <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center">
-            <div class="w-20 h-20 bg-[#1a1b1e] rounded-full flex items-center justify-center mb-6 border border-[#333] shadow-[0_0_30px_rgba(146,254,157,0.15)]">
-                <i class="fa-solid fa-wand-magic-sparkles text-4xl text-[#92FE9D]"></i>
+        <div id="chatHistoryList" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm text-gray-400">
+            <!-- Saved Chats will appear here -->
+            <p class="text-center mt-10">No history saved yet.</p>
+        </div>
+        <div class="p-4 border-t border-[#222]">
+            <div id="userInfo" class="flex items-center gap-3">
+                <button onclick="handleAuth()" class="w-full bg-white text-black font-bold py-2 rounded-lg hover:bg-gray-200 transition">
+                    <i class="fa-solid fa-user-lock mr-2"></i> Login to Save
+                </button>
             </div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-4 magic-gradient pb-2">I am your AI Manager</h1>
-            <p class="text-gray-400 text-base md:text-lg mb-8 max-w-md">Upload an image and ask me to enhance or recreate it. I won't fail you this time!</p>
+        </div>
+    </aside>
+
+    <!-- Main Chat -->
+    <main class="chat-container">
+        <!-- Top Nav -->
+        <nav class="p-4 flex items-center justify-between bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="p-2 hover:bg-[#1a1b1e] rounded-lg transition">
+                    <i class="fa-solid fa-bars-staggered text-xl"></i>
+                </button>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-white">Obaydul AI <span class="text-[10px] bg-red-600 px-1 rounded">PRO</span></span>
+                    <span class="text-[10px] text-gray-500">Created by DevObaydulbc</span>
+                </div>
+            </div>
+            <button onclick="newChat()" class="p-2 hover:bg-[#1a1b1e] rounded-full text-[#92FE9D] transition">
+                <i class="fa-solid fa-plus-circle text-2xl"></i>
+            </button>
+        </nav>
+
+        <!-- Messages Area -->
+        <div id="chatWindow" class="flex-1 overflow-y-auto px-4 md:px-20 pt-10 pb-40">
+            <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center">
+                <div class="mb-6 relative">
+                    <div class="w-24 h-24 bg-gradient-to-tr from-green-600 to-emerald-400 rounded-3xl rotate-12 flex items-center justify-center shadow-2xl">
+                        <i class="fa-solid fa-brain text-5xl text-white -rotate-12"></i>
+                    </div>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 gemini-text">আসসালামু আলাইকুম!</h1>
+                <p class="text-gray-400 max-w-lg mx-auto">আমি আপনার পার্সোনাল বাংলাদেশি স্মার্ট এআই এজেন্ট। আমি কোডিং, ইমেজ জেনারেশন এবং যেকোনো তথ্যে আপনাকে সাহায্য করতে পারি।</p>
+                <div class="grid grid-cols-2 gap-3 mt-10 w-full max-w-md">
+                    <button onclick="quickPrompt('বাংলাদেশের সেরা দর্শনীয় স্থানগুলো কী?')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-xs hover:bg-white/10 transition">🇧🇩 পর্যটন তথ্য</button>
+                    <button onclick="quickPrompt('Write a Python function for data analysis.')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-xs hover:bg-white/10 transition">💻 কোডিং হেল্প</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area absolute bottom-0 left-0 w-full pb-8 px-4 md:px-20 pt-4">
+            <div class="max-w-4xl mx-auto">
+                <div id="imagePreviewContainer" class="hidden mb-3 p-2 bg-[#1a1b1e] border border-[#333] rounded-2xl inline-block relative">
+                    <img id="imagePreview" src="" class="h-20 w-20 object-cover rounded-xl">
+                    <button onclick="removeFile()" class="absolute -top-2 -right-2 bg-red-600 rounded-full w-5 h-5 text-[10px]"><i class="fa-solid fa-x"></i></button>
+                </div>
+
+                <div class="relative flex items-end gap-2 bg-[#1a1b1e] border border-[#333] rounded-[30px] p-2 focus-within:border-emerald-500 transition-all shadow-2xl">
+                    <input type="file" id="fileInput" class="hidden" onchange="handleFile(event)">
+                    <button onclick="document.getElementById('fileInput').click()" class="p-3 text-gray-400 hover:text-emerald-400 transition"><i class="fa-solid fa-paperclip text-xl"></i></button>
+                    
+                    <textarea id="userInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 py-3 px-2 text-base resize-none" placeholder="এআই ম্যানেজারকে কিছু জিজ্ঞেস করুন..." oninput="autoHeight(this)"></textarea>
+                    
+                    <button id="micBtn" onclick="toggleVoice()" class="p-3 text-gray-400 hover:text-red-500 transition"><i class="fa-solid fa-microphone text-xl"></i></button>
+                    
+                    <button id="sendBtn" onclick="handleSend()" class="bg-emerald-500 text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-emerald-400 transition shadow-lg shrink-0">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-[10px] text-center text-gray-600 mt-3 uppercase tracking-widest font-bold">Smart Bangladeshi Agent Engine v2.0 • Created by DevObaydulbc</p>
+            </div>
         </div>
     </main>
 
-    <footer class="flex-none w-full bg-[#0f0f11] pt-2 pb-6 px-4 sm:px-6 md:px-8 bg-opacity-95 backdrop-blur-md">
-        <div class="max-w-3xl mx-auto">
-            <div class="relative flex flex-col bg-[#1a1b1e] border border-[#333] rounded-3xl focus-within:border-[#92FE9D] transition-colors p-1 md:p-2 shadow-lg">
-                
-                <div id="imagePreviewContainer" class="hidden px-4 pt-3 pb-1 relative inline-block">
-                    <div class="relative w-16 h-16 md:w-20 md:h-20 group">
-                        <img id="imagePreview" src="" alt="Attached" class="w-full h-full object-cover rounded-xl border border-[#444746]">
-                        <button onclick="removeAttachment()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex items-end w-full">
-                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
-                    <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-1 md:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-400 hover:bg-[#2c2d30] hover:text-[#92FE9D] transition">
-                        <i class="fa-solid fa-paperclip text-xl"></i>
-                    </button>
-                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base leading-relaxed" placeholder="Type here... (e.g. Enhance this image...)" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
-                    <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-1 md:mr-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-800 bg-[#92FE9D] hover:bg-[#6ee680] transition disabled:opacity-50 disabled:bg-gray-700">
-                        <i class="fa-solid fa-arrow-up text-lg font-bold"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-bolt text-[#00C9FF]"></i> Advanced Image-to-Image Routing Enabled
-            </div>
-        </div>
-    </footer>
-
     <script>
-        marked.use({
-            renderer: {
-                code(token) {
-                    const codeText = typeof token === 'string' ? token : (token.text || '');
-                    const language = typeof token === 'string' ? arguments[1] : (token.lang || '');
-                    const safeCode = codeText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    return `
-                    <div class="code-block-wrapper my-4 rounded-xl border border-[#333] overflow-hidden bg-[#1e1e20] shadow-sm">
-                        <div class="flex justify-between items-center bg-[#282a2c] text-gray-400 text-xs px-4 py-2 border-b border-[#333]">
-                            <span class="uppercase tracking-wider font-semibold">${language || 'Code'}</span>
-                            <button onclick="copyCode(this)" class="hover:text-[#92FE9D] transition flex items-center gap-1.5">
-                                <i class="fa-regular fa-copy"></i> <span>Copy code</span>
-                            </button>
-                        </div>
-                        <div class="p-4 overflow-x-auto">
-                            <pre class="!m-0 !p-0 !bg-transparent !border-none"><code class="language-${language}">${safeCode}</code></pre>
-                        </div>
-                    </div>`;
+        // --- ⚙️ CONFIGURATION & MEMORY ---
+        marked.use({ renderer: { code(token) {
+            const code = typeof token === 'string' ? token : (token.text || '');
+            const lang = token.lang || 'code';
+            return `<div class="code-block my-4 rounded-xl overflow-hidden"><div class="bg-[#222] px-4 py-2 text-[10px] flex justify-between"><span>${lang.toUpperCase()}</span><button onclick="copyCode(this)" class="hover:text-emerald-400"><i class="fa-regular fa-copy"></i> Copy</button></div><pre class="p-4 bg-[#111] overflow-x-auto"><code>${code}</code></pre></div>`;
+        }}});
+
+        let chatHistory = []; // Local Memory
+        let isRecording = false;
+        let currentUser = null;
+
+        // --- 🔐 AUTHENTICATION ---
+        async function checkAuth() {
+            currentUser = await puter.auth.getUser();
+            const userDiv = document.getElementById('userInfo');
+            if(currentUser) {
+                userDiv.innerHTML = `<img src="${currentUser.avatar_url}" class="w-8 h-8 rounded-full"> <span class="text-sm font-bold text-white">${currentUser.username}</span> <button onclick="puter.auth.signOut(); location.reload()" class="ml-auto text-xs text-red-500">Logout</button>`;
+                loadHistory();
+            }
+        }
+        async function handleAuth() { await puter.auth.signIn(); location.reload(); }
+        checkAuth();
+
+        // --- 🧠 MANAGER BRAIN (UPGRADED) ---
+        async function smartRouter(prompt) {
+            const systemBrain = `You are a manager agent. Decide which tool is needed. Reply ONLY with: 
+            IMAGE (if drawing/creating), CODE (if programming help), WEB (if latest news/search), AUDIO (if TTS), CHAT (general).
+            Prompt: ${prompt}`;
+            const decision = await puter.ai.chat(systemBrain, {model: 'gpt-5.4-nano'});
+            return (decision?.text || decision).trim().toUpperCase();
+        }
+
+        // --- 💬 CORE CHAT LOGIC ---
+        async function handleSend() {
+            const input = document.getElementById('userInput');
+            const prompt = input.value.trim();
+            const image = document.getElementById('imagePreview').src;
+            if(!prompt && !image) return;
+
+            document.getElementById('welcomeScreen').style.display = 'none';
+            appendMessage('user', prompt, image);
+            input.value = ''; input.style.height = 'auto';
+            
+            const aiBox = appendMessage('assistant', `<div class="flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin text-emerald-400"></i> রাউটিং প্রসেস হচ্ছে...</div>`);
+            
+            try {
+                const task = await smartRouter(prompt);
+                
+                // --- 🖼️ IMAGE GENERATION ---
+                if(task === 'IMAGE') {
+                    aiBox.innerHTML = `<span class="manager-badge">🎨 Image Agent</span> জেনারেট হচ্ছে...`;
+                    const img = await puter.ai.txt2img(prompt, {model: 'gpt-image-1.5'});
+                    aiBox.innerHTML = `<span class="manager-badge">🎨 Image Generated</span><br>`;
+                    img.className = "rounded-2xl mt-4 border border-white/10 shadow-2xl w-full max-w-sm";
+                    aiBox.appendChild(img);
+                } 
+                // --- 💻 CODING ASSISTANT ---
+                else if(task === 'CODE') {
+                    aiBox.innerHTML = `<span class="manager-badge">💻 Code Agent</span> সল্যুশন তৈরি হচ্ছে...`;
+                    // DeepSeek বা উন্নত মডেল ব্যবহার
+                    const resp = await puter.ai.chat(`You are Obaydul AI Code Assistant. Solve this: ${prompt}`, {model: 'gpt-5.4', stream: true});
+                    renderStream(resp, aiBox, "Code Agent");
                 }
-            }
-        });
-        marked.setOptions({ breaks: true, gfm: true });
+                // --- 🌐 WEB SEARCH ---
+                else if(task === 'WEB') {
+                    aiBox.innerHTML = `<span class="manager-badge">🌐 Search Agent</span> ইন্টারনেট থেকে খুঁজছি...`;
+                    const resp = await puter.ai.chat(prompt, {tools: [{type: 'web_search'}]});
+                    aiBox.innerHTML = `<span class="manager-badge">🌐 Search Result</span><br>${marked.parse(resp?.text || resp)}`;
+                }
+                // --- 💬 GENERAL CHAT (WITH MEMORY) ---
+                else {
+                    aiBox.innerHTML = `<span class="manager-badge">🤖 Smart Agent</span> চিন্তা করছে...`;
+                    
+                    // Memory Context যুক্ত করা
+                    const fullContext = [
+                        {role: 'system', content: 'You are Obaydul AI, created by DevObaydulbc. You are a highly intelligent Bangladeshi AI assistant. Reply in the user\'s language. You remember previous conversations.'},
+                        ...chatHistory.slice(-5), // শেষের ৫টি মেসেজ মনে রাখবে
+                        {role: 'user', content: prompt}
+                    ];
 
-        function copyCode(btn) {
-            const textToCopy = btn.closest('.code-block-wrapper').querySelector('code').innerText;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const icon = btn.querySelector('i'); const span = btn.querySelector('span');
-                icon.className = 'fa-solid fa-check text-[#92FE9D]'; span.innerText = 'Copied!'; span.classList.add('text-[#92FE9D]');
-                setTimeout(() => { icon.className = 'fa-regular fa-copy text-gray-400'; span.innerText = 'Copy code'; span.classList.remove('text-[#92FE9D]'); }, 2000);
-            });
+                    const resp = await puter.ai.chat(fullContext, {model: 'gpt-5.4', stream: true});
+                    renderStream(resp, aiBox, "Smart Agent");
+                }
+
+                // হিস্টোরি সেভ করা
+                if(currentUser) saveToCloud(prompt);
+
+            } catch (e) { aiBox.innerHTML = "দুঃখিত, কোনো সমস্যা হয়েছে। আবার চেষ্টা করুন।"; }
         }
 
-        function copyMessage(btn) {
-            const textToCopy = btn.closest('.ai-response-wrapper').getAttribute('data-raw-text');
-            if(textToCopy) {
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    const icon = btn.querySelector('i'); const span = btn.querySelector('span');
-                    icon.className = 'fa-solid fa-check text-[#92FE9D]'; span.innerText = 'Copied!'; span.classList.add('text-[#92FE9D]');
-                    setTimeout(() => { icon.className = 'fa-regular fa-copy'; span.innerText = 'Copy Response'; span.classList.remove('text-[#92FE9D]'); }, 2000);
-                });
+        // --- 🔄 STREAM RENDERER ---
+        async function renderStream(stream, box, agentName) {
+            let fullText = "";
+            box.innerHTML = `<span class="manager-badge">🤖 ${agentName}</span><div class="mt-2 typing"></div>`;
+            for await (const part of stream) {
+                fullText += (part?.text || "");
+                box.lastElementChild.innerHTML = marked.parse(fullText);
+                chatContainer.scrollTo({top: chatContainer.scrollHeight});
+            }
+            chatHistory.push({role: 'assistant', content: fullText});
+        }
+
+        // --- 🎤 SPEECH TO TEXT ---
+        async function toggleVoice() {
+            const mic = document.getElementById('micBtn');
+            if(!isRecording) {
+                mic.classList.add('text-red-500', 'pulse-red');
+                isRecording = true;
+                // Puter.js Speech2Text implementation placeholder
+                alert("কথার মাধ্যমে কমান্ড দেওয়ার ফিচারটি শীঘ্রই আসছে (Web Speech API Integration)");
+                setTimeout(() => {
+                    mic.classList.remove('text-red-500', 'pulse-red');
+                    isRecording = false;
+                }, 3000);
             }
         }
 
-        const chatContainer = document.getElementById('chatContainer');
-        const promptInput = document.getElementById('promptInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-        const imagePreview = document.getElementById('imagePreview');
-        
-        let isGenerating = false;
-        let currentAttachedImageBase64 = null;
-
-        promptInput.addEventListener('paste', e => {
-            if (e.clipboardData.files && e.clipboardData.files.length > 0 && e.clipboardData.files[0].type.startsWith('image/')) {
-                e.preventDefault(); processFile(e.clipboardData.files[0]);
+        // --- ☁️ STORAGE & UI HELPERS ---
+        function saveToCloud(prompt) {
+            const key = `chat_${Date.now()}`;
+            puter.kv.set(key, prompt);
+        }
+        async function loadHistory() {
+            const history = await puter.kv.list();
+            const list = document.getElementById('chatHistoryList');
+            if(history.length > 0) {
+                list.innerHTML = history.slice(-10).map(item => `<div class="p-2 hover:bg-white/5 rounded cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis border-b border-white/5">${item.key.split('_')[1]}</div>`).join('');
             }
-        });
+        }
 
-        function handleFileUpload(event) { if (event.target.files[0]) processFile(event.target.files[0]); event.target.value = ''; }
+        function appendMessage(role, text, img = null) {
+            const win = document.getElementById('chatWindow');
+            const div = document.createElement('div');
+            div.className = `mb-8 flex flex-col ${role === 'user' ? 'items-end' : 'items-start animate-fade-in'}`;
+            
+            let content = `<div class="max-w-[85%] p-4 rounded-3xl ${role === 'user' ? 'bg-[#222] text-white rounded-tr-none' : 'text-gray-300 rounded-tl-none'}">`;
+            if(img) content += `<img src="${img}" class="h-40 rounded-xl mb-2">`;
+            content += `<div class="ai-response">${marked.parse(text)}</div></div>`;
+            
+            div.innerHTML = content;
+            win.appendChild(div);
+            win.scrollTo({top: win.scrollHeight, behavior: 'smooth'});
+            if(role === 'user') chatHistory.push({role: 'user', content: text});
+            return div.querySelector('.ai-response');
+        }
 
-        function processFile(file) {
+        function autoHeight(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function handleFile(e) {
+            const file = e.target.files[0];
             const reader = new FileReader();
-            reader.onload = (e) => {
-                currentAttachedImageBase64 = e.target.result;
-                imagePreview.src = currentAttachedImageBase64;
-                imagePreviewContainer.classList.remove('hidden');
-                promptInput.placeholder = "Image attached! You can ask to generate a similar image...";
-                promptInput.focus();
-            };
+            reader.onload = (ev) => {
+                document.getElementById('imagePreview').src = ev.target.result;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            }
             reader.readAsDataURL(file);
         }
-
-        function removeAttachment() {
-            currentAttachedImageBase64 = null;
-            imagePreview.src = ''; imagePreviewContainer.classList.add('hidden');
-            promptInput.placeholder = "Type here... (e.g. Enhance this image...)";
-        }
-
-        function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px'; }
-        function handleEnter(e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); processRequest(); } }
-        function scrollToBottom() { chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); }
-
-        function createChatBubble(isUser, text = '') {
-            const mainWrapper = document.createElement('div');
-            mainWrapper.className = "w-full mb-6 flex gap-3 md:gap-4 group ai-response-wrapper";
-            
-            const avatar = document.createElement('div');
-            avatar.className = `w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold mt-1 shadow-md ${isUser ? 'bg-[#333] border border-[#555]' : 'bg-[#92FE9D] text-[#0f0f11]'}`;
-            avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
-
-            const contentWrapper = document.createElement('div');
-            contentWrapper.className = "flex-1 min-w-0 flex flex-col justify-center";
-
-            const contentBox = document.createElement('div');
-            contentBox.className = "ai-response text-sm md:text-base";
-            
-            if(isUser) {
-                if(currentAttachedImageBase64) {
-                    const imgPreview = document.createElement('img');
-                    imgPreview.src = currentAttachedImageBase64;
-                    imgPreview.className = "max-w-[150px] md:max-w-[200px] rounded-xl mb-2 md:mb-3 border border-[#333] object-cover";
-                    contentBox.appendChild(imgPreview);
-                }
-                const textSpan = document.createElement('div'); textSpan.innerText = text; contentBox.appendChild(textSpan);
-            }
-
-            contentWrapper.appendChild(contentBox);
-
-            if (!isUser) {
-                const actionBar = document.createElement('div');
-                actionBar.className = "flex gap-4 mt-2 text-gray-500 text-xs md:text-sm opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300";
-                actionBar.innerHTML = `<button onclick="copyMessage(this)" class="hover:text-white transition flex items-center gap-1.5 bg-[#1a1b1e] px-2 py-1 rounded-md border border-[#333]"><i class="fa-regular fa-copy"></i> <span>Copy Response</span></button>`;
-                contentWrapper.appendChild(actionBar);
-            }
-
-            mainWrapper.appendChild(avatar); mainWrapper.appendChild(contentWrapper); chatContainer.appendChild(mainWrapper);
-            return { contentBox, mainWrapper };
-        }
-
-        // ==========================================
-        //  THE SUPER AGGRESSIVE ROUTER (Fixed!)
-        // ==========================================
-        async function determineTaskType(prompt, hasImage) {
-            let cleanPrompt = prompt.replace(/['"]/g, '').toLowerCase().trim();
-
-            let wantsImage = false;
-            
-            // Rule 1: Contains action + image word anywhere
-            if (/(make|create|generate|draw|paint|enhance|recreate|edit).*?(image|inage|pic|photo|art|drawing|character)/i.test(cleanPrompt)) {
-                wantsImage = true;
-            }
-            // Rule 2: If image is attached and they say "make this", "enhance this", "recreate it"
-            else if (hasImage && /(make|create|generate|draw|paint|enhance|recreate|edit|change).*?(this|it)/i.test(cleanPrompt)) {
-                wantsImage = true;
-            }
-            // Rule 3: Short commands
-            else if (cleanPrompt === "enhance" || cleanPrompt === "recreate" || cleanPrompt.endsWith("make it") || cleanPrompt.startsWith("draw ")) {
-                wantsImage = true;
-            }
-
-            if (wantsImage) return 'IMAGE';
-
-            if (cleanPrompt.startsWith("search") || cleanPrompt.includes("latest news")) return 'SEARCH';
-            if (cleanPrompt.includes("convert to audio") || cleanPrompt.includes("speak this")) return 'AUDIO';
-
-            // If no clear text command, but an image is uploaded -> Default to VISION
-            if (hasImage && cleanPrompt === "") return 'VISION';
-
-            // Fallback AI Router
-            const routerPrompt = `Task: Classify this user request into exactly ONE category: IMAGE, SEARCH, AUDIO, or CHAT.\nRules:\n- Reply "IMAGE" if they ask to create, make, enhance, edit, or generate a picture/photo.\n- Reply "SEARCH" if they want real-time info or web search.\n- Reply "AUDIO" if they want voice/speech.\n- Reply "CHAT" for general questions or text generation.\nReply ONLY with the exact word. No punctuation.\nRequest: "${prompt}"`;
-            try {
-                const rawResponse = await puter.ai.chat(routerPrompt, { model: 'gpt-5.4-nano', temperature: 0 });
-                let decision = (typeof rawResponse === 'string' ? rawResponse : rawResponse?.text || "").trim().toUpperCase().replace(/[^A-Z]/g, '');
-                if (['IMAGE', 'SEARCH', 'AUDIO'].includes(decision)) return decision;
-            } catch (error) {}
-
-            return hasImage ? 'VISION' : 'CHAT';
-        }
-
-        // ==========================================
-        //  PROCESSOR
-        // ==========================================
-        async function processRequest() {
-            const prompt = promptInput.value.trim();
-            if (!prompt && !currentAttachedImageBase64 || isGenerating) return;
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
-
-            createChatBubble(true, prompt || "Analyze this image.");
-            const imageToSend = currentAttachedImageBase64;
-            removeAttachment(); 
-            promptInput.value = ''; promptInput.style.height = 'auto'; scrollToBottom();
-
-            const aiElements = createChatBubble(false);
-            const aiContentBox = aiElements.contentBox;
-            const mainWrapper = aiElements.mainWrapper;
-            
-            isGenerating = true; sendBtn.disabled = true;
-
-            try {
-                aiContentBox.innerHTML = `<div class="flex items-center gap-3 text-gray-400 text-sm"><i class="fa-solid fa-microchip fa-fade text-[#00C9FF]"></i><span>Manager is routing request...</span></div>`;
-                
-                const taskType = await determineTaskType(prompt, !!imageToSend);
-
-                // =========== 1. IMAGE GENERATION ===========
-                if (taskType === 'IMAGE') {
-                    if (imageToSend) {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Manager: Scanning Reference Image...</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm"><i class="fa-solid fa-scan fa-pulse"></i><span>Extracting details from uploaded image...</span></div>`;
-                        
-                        // Extract details
-                        const visionResp = await puter.ai.chat("Describe this image in extreme detail (colors, subject, style) so an AI image generator can recreate it perfectly.", imageToSend, { model: "gpt-5.4-nano" });
-                        const imgDesc = visionResp?.text || visionResp?.message?.content || visionResp;
-
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Enhanced Image...</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
-                        
-                        // Create final prompt
-                        const finalPrompt = `A high quality digital image based exactly on this description: ${imgDesc}. Extra User Requirements: ${prompt}`;
-                        const imgElement = await puter.ai.txt2img(finalPrompt, { model: "gpt-image-1.5" });
-                        
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Enhanced Image Created</div><br>`;
-                        imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
-                        aiContentBox.appendChild(imgElement);
-                        
-                        mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used internally: " + finalPrompt);
-                    } else {
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Image</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
-                        const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
-                        aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Image Created</div><br>`;
-                        imgElement.className = "w-full max-w-sm md:max-w-lg rounded-xl border border-[#333] shadow-lg mt-1";
-                        aiContentBox.appendChild(imgElement);
-                        mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used: " + prompt); 
-                    }
-                }
-                
-                // =========== 2. VISION ANALYSIS ===========
-                else if (taskType === 'VISION') {
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Manager: Vision Analysis</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm"><i class="fa-solid fa-scan fa-pulse"></i><span>Scanning pixels...</span></div>`;
-                    const response = await puter.ai.chat(prompt || "What is in this image?", imageToSend, { model: "gpt-5.4-nano" });
-                    const textResult = response?.text || response?.message?.content || response;
-                    
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Vision Complete</div><div class="mt-1">${marked.parse(textResult)}</div>`;
-                    mainWrapper.setAttribute('data-raw-text', textResult); 
-                }
-                
-                // =========== 3. WEB SEARCH ===========
-                else if (taskType === 'SEARCH') {
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Manager: Web Search</div><div class="flex items-center gap-3 text-[#00C9FF] text-sm mt-2"><i class="fa-solid fa-satellite-dish fa-spin"></i><span>Browsing internet...</span></div>`;
-                    const response = await puter.ai.chat(prompt, { model: "openai/gpt-5.2-chat", tools:[{ type: "web_search" }] });
-                    const responseText = (typeof response === 'string') ? response : (response?.text || response?.message?.content || JSON.stringify(response));
-                    
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-globe mr-1"></i> Web Results</div><div class="mt-1">${marked.parse(responseText)}</div>`;
-                    mainWrapper.setAttribute('data-raw-text', responseText);
-                }
-
-                // =========== 4. AUDIO GENERATION ===========
-                else if (taskType === 'AUDIO') {
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Manager: Voice Gen</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm mt-2"><i class="fa-solid fa-compact-disc fa-spin"></i><span>Synthesizing...</span></div>`;
-                    const audioElement = await puter.ai.txt2speech(prompt, { provider: "openai" });
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-music mr-1"></i> Audio Generated</div><br>`;
-                    audioElement.setAttribute("controls", "");
-                    audioElement.className = "w-full max-w-[260px] md:max-w-md rounded-full shadow-lg outline-none bg-[#1a1b1e] h-10 md:h-12 border border-[#333] mt-1";
-                    aiContentBox.appendChild(audioElement);
-                    mainWrapper.setAttribute('data-raw-text', prompt);
-                }
-
-                // =========== 5. TEXT CHAT ===========
-                else {
-                    aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1 blinking-cursor"></div>`;
-                    const response = await puter.ai.chat(prompt, { model: "gpt-5.4", stream: true });
-                    let fullText = "";
-                    const badgeHTML = `<div class="manager-badge"><i class="fa-solid fa-message mr-1"></i> Manager: Smart Chat</div><div class="mt-1">`;
-                    
-                    for await (const part of response) {
-                        fullText += (part?.text || part?.message?.content || "");
-                        aiContentBox.innerHTML = badgeHTML + marked.parse(fullText) + "</div>";
-                        mainWrapper.setAttribute('data-raw-text', fullText);
-                        scrollToBottom();
-                    }
-                }
-                
-            } catch (error) {
-                aiContentBox.innerHTML = `<span class="text-red-400 text-sm md:text-base"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${error.message}</span>`;
-            } finally {
-                aiContentBox.classList.remove('blinking-cursor');
-                isGenerating = false;
-                sendBtn.disabled = false;
-                scrollToBottom();
-            }
+        function removeFile() { document.getElementById('imagePreviewContainer').classList.add('hidden'); }
+        function quickPrompt(p) { document.getElementById('userInput').value = p; handleSend(); }
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('code').innerText;
+            navigator.clipboard.writeText(code);
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+            setTimeout(() => btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy', 2000);
         }
     </script>
 </body>

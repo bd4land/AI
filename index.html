@@ -84,7 +84,7 @@
                 <i class="fa-solid fa-wand-magic-sparkles text-4xl text-[#92FE9D]"></i>
             </div>
             <h1 class="text-4xl md:text-5xl font-bold mb-4 magic-gradient pb-2">I am your AI Manager</h1>
-            <p class="text-gray-400 text-base md:text-lg mb-8 max-w-md">I can now use your uploaded image as a reference to generate new, enhanced images!</p>
+            <p class="text-gray-400 text-base md:text-lg mb-8 max-w-md">Upload an image and ask me to enhance or recreate it. I won't fail you this time!</p>
         </div>
     </main>
 
@@ -106,7 +106,7 @@
                     <button onclick="document.getElementById('fileInput').click()" class="mb-1 ml-1 md:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-400 hover:bg-[#2c2d30] hover:text-[#92FE9D] transition">
                         <i class="fa-solid fa-paperclip text-xl"></i>
                     </button>
-                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base leading-relaxed" placeholder="Type here... (e.g. Make an image of...)" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                    <textarea id="promptInput" rows="1" class="w-full bg-transparent border-none text-white focus:ring-0 resize-none px-2 py-3 md:px-3 text-sm md:text-base leading-relaxed" placeholder="Type here... (e.g. Enhance this image...)" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
                     <button id="sendBtn" onclick="processRequest()" class="mb-1 mr-1 md:mr-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-gray-800 bg-[#92FE9D] hover:bg-[#6ee680] transition disabled:opacity-50 disabled:bg-gray-700">
                         <i class="fa-solid fa-arrow-up text-lg font-bold"></i>
                     </button>
@@ -119,9 +119,6 @@
     </footer>
 
     <script>
-        // ==========================================
-        //  FIXED MARKDOWN RENDERER
-        // ==========================================
         marked.use({
             renderer: {
                 code(token) {
@@ -145,7 +142,6 @@
         });
         marked.setOptions({ breaks: true, gfm: true });
 
-        // Copy Functions
         function copyCode(btn) {
             const textToCopy = btn.closest('.code-block-wrapper').querySelector('code').innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
@@ -166,7 +162,6 @@
             }
         }
 
-        // DOM Elements
         const chatContainer = document.getElementById('chatContainer');
         const promptInput = document.getElementById('promptInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -177,7 +172,6 @@
         let isGenerating = false;
         let currentAttachedImageBase64 = null;
 
-        // Inputs Handlers
         promptInput.addEventListener('paste', e => {
             if (e.clipboardData.files && e.clipboardData.files.length > 0 && e.clipboardData.files[0].type.startsWith('image/')) {
                 e.preventDefault(); processFile(e.clipboardData.files[0]);
@@ -201,7 +195,7 @@
         function removeAttachment() {
             currentAttachedImageBase64 = null;
             imagePreview.src = ''; imagePreviewContainer.classList.add('hidden');
-            promptInput.placeholder = "Type here... (e.g. Make an image...)";
+            promptInput.placeholder = "Type here... (e.g. Enhance this image...)";
         }
 
         function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight < 150 ? textarea.scrollHeight : 150) + 'px'; }
@@ -246,26 +240,26 @@
         }
 
         // ==========================================
-        //  THE SUPER HYBRID ROUTER
+        //  THE SUPER AGGRESSIVE ROUTER (Fixed!)
         // ==========================================
         async function determineTaskType(prompt, hasImage) {
             let cleanPrompt = prompt.replace(/['"]/g, '').toLowerCase().trim();
 
-            // 1. Bulletproof Regex for spelling mistakes (inage, image, pic)
-            const imgWords =['image', 'inage', 'picture', 'pic', 'photo', 'art', 'drawing'];
-            const actionWords =['make', 'create', 'generate', 'draw', 'paint'];
             let wantsImage = false;
             
-            for (let a of actionWords) {
-                for (let i of imgWords) {
-                    if (cleanPrompt.includes(`${a} a ${i}`) || cleanPrompt.includes(`${a} an ${i}`) || cleanPrompt.includes(`${a} ${i}`)) {
-                        wantsImage = true; break;
-                    }
-                }
+            // Rule 1: Contains action + image word anywhere
+            if (/(make|create|generate|draw|paint|enhance|recreate|edit).*?(image|inage|pic|photo|art|drawing|character)/i.test(cleanPrompt)) {
+                wantsImage = true;
             }
-            if (cleanPrompt.endsWith("make it") || cleanPrompt.startsWith("draw ")) wantsImage = true;
+            // Rule 2: If image is attached and they say "make this", "enhance this", "recreate it"
+            else if (hasImage && /(make|create|generate|draw|paint|enhance|recreate|edit|change).*?(this|it)/i.test(cleanPrompt)) {
+                wantsImage = true;
+            }
+            // Rule 3: Short commands
+            else if (cleanPrompt === "enhance" || cleanPrompt === "recreate" || cleanPrompt.endsWith("make it") || cleanPrompt.startsWith("draw ")) {
+                wantsImage = true;
+            }
 
-            // If user explicitely wants to make an image -> Force IMAGE mode
             if (wantsImage) return 'IMAGE';
 
             if (cleanPrompt.startsWith("search") || cleanPrompt.includes("latest news")) return 'SEARCH';
@@ -274,15 +268,14 @@
             // If no clear text command, but an image is uploaded -> Default to VISION
             if (hasImage && cleanPrompt === "") return 'VISION';
 
-            // 2. AI Router for complex sentences
-            const routerPrompt = `Task: Classify this user request into exactly ONE category: IMAGE, SEARCH, AUDIO, or CHAT.\nRules:\n- Reply "IMAGE" if they ask to create, make, or generate a picture/photo.\n- Reply "SEARCH" if they want real-time info or web search.\n- Reply "AUDIO" if they want voice/speech.\n- Reply "CHAT" for general questions or text generation.\nReply ONLY with the exact word. No punctuation.\nRequest: "${prompt}"`;
+            // Fallback AI Router
+            const routerPrompt = `Task: Classify this user request into exactly ONE category: IMAGE, SEARCH, AUDIO, or CHAT.\nRules:\n- Reply "IMAGE" if they ask to create, make, enhance, edit, or generate a picture/photo.\n- Reply "SEARCH" if they want real-time info or web search.\n- Reply "AUDIO" if they want voice/speech.\n- Reply "CHAT" for general questions or text generation.\nReply ONLY with the exact word. No punctuation.\nRequest: "${prompt}"`;
             try {
                 const rawResponse = await puter.ai.chat(routerPrompt, { model: 'gpt-5.4-nano', temperature: 0 });
                 let decision = (typeof rawResponse === 'string' ? rawResponse : rawResponse?.text || "").trim().toUpperCase().replace(/[^A-Z]/g, '');
                 if (['IMAGE', 'SEARCH', 'AUDIO'].includes(decision)) return decision;
             } catch (error) {}
 
-            // 3. Ultimate Fallback -> If there's an image attached, chat about the image.
             return hasImage ? 'VISION' : 'CHAT';
         }
 
@@ -308,23 +301,21 @@
             try {
                 aiContentBox.innerHTML = `<div class="flex items-center gap-3 text-gray-400 text-sm"><i class="fa-solid fa-microchip fa-fade text-[#00C9FF]"></i><span>Manager is routing request...</span></div>`;
                 
-                // Route Decision: Passes whether an image is attached to make a better decision
                 const taskType = await determineTaskType(prompt, !!imageToSend);
 
                 // =========== 1. IMAGE GENERATION ===========
                 if (taskType === 'IMAGE') {
                     if (imageToSend) {
-                        // Image-to-Image Magic Workflow
                         aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-eye mr-1"></i> Manager: Scanning Reference Image...</div><div class="flex items-center gap-3 text-[#92FE9D] text-sm"><i class="fa-solid fa-scan fa-pulse"></i><span>Extracting details from uploaded image...</span></div>`;
                         
-                        // Step A: Describe the image
+                        // Extract details
                         const visionResp = await puter.ai.chat("Describe this image in extreme detail (colors, subject, style) so an AI image generator can recreate it perfectly.", imageToSend, { model: "gpt-5.4-nano" });
                         const imgDesc = visionResp?.text || visionResp?.message?.content || visionResp;
 
                         aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Enhanced Image...</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
                         
-                        // Step B: Generate new image
-                        const finalPrompt = `A high quality digital image based on this description: ${imgDesc}. User modifications/style requested: ${prompt}`;
+                        // Create final prompt
+                        const finalPrompt = `A high quality digital image based exactly on this description: ${imgDesc}. Extra User Requirements: ${prompt}`;
                         const imgElement = await puter.ai.txt2img(finalPrompt, { model: "gpt-image-1.5" });
                         
                         aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Enhanced Image Created</div><br>`;
@@ -333,7 +324,6 @@
                         
                         mainWrapper.setAttribute('data-raw-text', "Image Generation Prompt used internally: " + finalPrompt);
                     } else {
-                        // Standard Text-to-Image
                         aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Manager: Generating Image</div><div class="w-full max-w-sm h-48 md:h-64 shimmer rounded-xl border border-[#333] mt-2"></div>`;
                         const imgElement = await puter.ai.txt2img(prompt, { model: "gpt-image-1.5" });
                         aiContentBox.innerHTML = `<div class="manager-badge"><i class="fa-solid fa-palette mr-1"></i> Image Created</div><br>`;
